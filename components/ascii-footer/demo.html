@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AsciiFooter demo</title>
+<style>
+  html, body { margin: 0; background: #F2F1EC; }
+  main { min-height: 40vh; }
+  footer { width: 100%; }
+</style>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone@7.26.4/babel.min.js"></script>
+</head>
+<body>
+<main></main>
+<footer id="root"></footer>
+<script type="text/babel" data-presets="react">
+const { useEffect, useRef } = React;
+
+/**
+ * AsciiFooter
+ *
+ * Renders a phrase (default: the Megamind Labs wordmark) as a fixed grid of
+ * monospaced glyphs on a <canvas>. Letterforms are readable only through
+ * character density. The pointer acts as a soft point light: cells inside
+ * `radius` snap to the darkest glyph, cells beyond fade toward the faint end
+ * of the ramp.
+ *
+ * Pipeline
+ *   1. Draw the phrase (plus optional pixel-step accents) black on white to
+ *      an offscreen canvas at 2x.
+ *   2. Average luminance per grid cell -> density in [0, 1]. Cached until
+ *      resize or prop change.
+ *   3. Per frame: index = round(density * (n-1) + shift), where shift is the
+ *      radial light term. Draw the glyph from a pre-rendered atlas.
+ *
+ * Props
+ *   phrase      string   text to render                       "Megamind Labs"
+ *   ramp        string   glyphs, lightest -> darkest           " .:;i/|+*#"
+ *   radius      number   px; cells inside snap to darkest      120
+ *   falloff     number   px; e-fold distance beyond radius     radius * 1.5
+ *   bg          string   background colour                     "#F2F1EC"
+ *   ink         string   glyph colour (single colour)          "#6B7A6E"
+ *   cellWidth   number   px                                    5
+ *   cellHeight  number   px                                    8
+ *   aspect      number   width / height of the footer          3
+ *   margin      number   fraction of width kept clear per side 0.08
+ *   restLevel   number   0..1 light level with no pointer      0.38
+ *   minLevel    number   0..1 light level infinitely far away  0.12
+ *   fontFamily  string   font used for the source drawing
+ *   fontWeight  number   weight used for the source drawing    700
+ *   accents     fn|null  draws pixel-step accents on the source canvas;
+ *                        defaults to the Megamind wordmark accents
+ *   className, style     passed to the wrapper <div>
+ */
+
+const DEFAULT_RAMP = " .:;i/|+*#";
+
+// Smoothstep gate: 0 for halo cells (density <= 0.06), 1 for cells that are
+// at least ~45% ink. Controls how much of the pointer's "snap" a cell receives.
+function snapGate(d) {
+  const t = Math.min(1, Math.max(0, (d - 0.06) / (0.45 - 0.06)));
+  return t * t * (3 - 2 * t);
+}
+
+/**
+ * Pixel-step accents that approximate the Megamind Labs wordmark:
+ * a stair under the "g", a displaced dot on the "i", a stepped corner on the
+ * "L", and a stepped tail on the "s". Only applied when the phrase matches.
+ */
+function megamindAccents(L) {
+  if (L.phrase !== "Megamind Labs") return;
+  const { ctx, fontSize, baseline, charLeft, charRight, bg, ink } = L;
+  const u = fontSize * 0.2; // accent block size
+  const capTop = baseline - fontSize * 0.72;
+  const xTop = baseline - fontSize * 0.53;
+  const bearing = fontSize * 0.06;
+  const block = (x, y, color = ink) => {
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, u, u);
+  };
+
+  // g (index 2): flatten the descender, replace it with a stair stepping down-right.
+  const gL = charLeft(2) + bearing;
+  const gR = charRight(2);
+  ctx.fillStyle = bg;
+  ctx.fillRect(gL - bearing - 2, baseline + 1, gR - gL + bearing + 4, fontSize * 0.45);
+  block(gL, baseline);
+  block(gL + u, baseline + u);
+
+  // i (index 6): remove the dot, place a square to the right of the stem top.
+  const iL = charLeft(6);
+  const iR = charRight(6);
+  ctx.fillStyle = bg;
+  ctx.fillRect(iL - 2, capTop - fontSize * 0.12, iR - iL + 4, xTop - capTop + fontSize * 0.12 - 1);
+  block(iR - bearing, xTop);
+
+  // L (index 9): notch the top-left of the stem, add a block up-left of it.
+  const stemL = charLeft(9) + bearing * 1.3;
+  block(stemL, capTop, bg);
+  block(stemL - u, capTop - u);
+
+  // s (index 12): cut the terminal, step it down-right.
+  const sR = charRight(12) - bearing;
+  block(sR - u, baseline - u, bg);
+  block(sR - u, baseline);
+}
+
+function AsciiFooter({
+  phrase = "Megamind Labs",
+  ramp = DEFAULT_RAMP,
+  radius = 120,
+  falloff,
+  bg = "#F2F1EC",
+  ink = "#6B7A6E",
+  cellWidth = 5,
+  cellHeight = 8,
+  aspect = 3,
+  margin = 0.08,
+  restLevel = 0.38,
+  minLevel = 0.12,
+  fontFamily = '"Helvetica Neue", Helvetica, Arial, sans-serif',
+  fontWeight = 700,
+  accents = megamindAccents,
+  className,
+  style,
+}) {
+  const wrapRef = useRef(null);
+  const canvasRef = useRef(null);
+  const fall = falloff ?? radius * 1.5;
+
+  useEffect(() => {
+    const wrap = wrapRef.current;
+    const canvas = canvasRef.current;
+    if (!wrap || !canvas) return;
+    const ctx = canvas.getContext("2d");
+    const n = ramp.length;
+
+    let W = 0, H = 0, cols = 0, rows = 0, offX = 0, offY = 0, dpr = 1;
+    let density = null; // Float32Array, one entry per cell, 1 = solid ink
+    let atlas = null;   // pre-rendered ramp glyphs, one tile per glyph
+    let pointer = null; // { x, y } in grid space, or null
+    let raf = 0;
+    let disposed = false;
+
+    function buildAtlas() {
+      const cw = Math.ceil(cellWidth * dpr);
+      const ch = Math.ceil(cellHeight * dpr);
+      atlas = document.createElement("canvas");
+      atlas.width = cw * n;
+      atlas.height = ch;
+      const a = atlas.getContext("2d");
+      a.fillStyle = ink;
+      a.textAlign = "center";
+      a.textBaseline = "middle";
+      a.font = `${cellHeight * 0.95 * dpr}px ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace`;
+      for (let i = 0; i < n; i++) {
+        a.fillText(ramp[i], i * cw + cw / 2, ch / 2 + ch * 0.04);
+      }
+    }
+
+    function buildDensity() {
+      const S = 2; // supersample factor for the source drawing
+      const gw = cols * cellWidth;
+      const gh = rows * cellHeight;
+      const src = document.createElement("canvas");
+      src.width = gw * S;
+      src.height = gh * S;
+      const s = src.getContext("2d");
+      s.scale(S, S);
+      s.fillStyle = "#fff";
+      s.fillRect(0, 0, gw, gh);
+
+      // Fit the phrase: width within margins, height capped so accents fit.
+      const maxW = gw * (1 - 2 * margin);
+      const maxH = gh * 0.55;
+      s.font = `${fontWeight} 100px ${fontFamily}`;
+      const w100 = s.measureText(phrase).width || 1;
+      const fontSize = Math.min(maxH, (maxW / w100) * 100);
+      s.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
+      const textW = s.measureText(phrase).width;
+      const startX = (gw - textW) / 2;
+      // Centre the visual block (cap height above, accent stair below).
+      const baseline = gh / 2 + fontSize * 0.16;
+
+      s.fillStyle = "#000";
+      s.textBaseline = "alphabetic";
+      s.textAlign = "left";
+      s.fillText(phrase, startX, baseline);
+
+      if (typeof accents === "function") {
+        const charLeft = (i) => startX + s.measureText(phrase.slice(0, i)).width;
+        const charRight = (i) => startX + s.measureText(phrase.slice(0, i + 1)).width;
+        accents({ ctx: s, phrase, fontSize, baseline, startX, textW, charLeft, charRight, bg: "#fff", ink: "#000" });
+      }
+
+      // Average luminance per cell -> density.
+      const img = s.getImageData(0, 0, src.width, src.height).data;
+      const stride = src.width;
+      const pw = cellWidth * S;
+      const ph = cellHeight * S;
+      const inv = 1 / (pw * ph * 255);
+      density = new Float32Array(cols * rows);
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          let sum = 0;
+          const x0 = c * pw;
+          const y0 = r * ph;
+          for (let y = 0; y < ph; y++) {
+            let p = ((y0 + y) * stride + x0) * 4;
+            for (let x = 0; x < pw; x++, p += 4) sum += 255 - img[p];
+          }
+          density[r * cols + c] = sum * inv;
+        }
+      }
+    }
+
+    function layout() {
+      const rect = wrap.getBoundingClientRect();
+      W = Math.max(1, Math.floor(rect.width));
+      H = Math.max(1, Math.floor(rect.height));
+      dpr = Math.min(window.devicePixelRatio || 1, 3);
+      canvas.width = Math.round(W * dpr);
+      canvas.height = Math.round(H * dpr);
+      canvas.style.width = `${W}px`;
+      canvas.style.height = `${H}px`;
+      cols = Math.max(1, Math.floor(W / cellWidth));
+      rows = Math.max(1, Math.floor(H / cellHeight));
+      offX = (W - cols * cellWidth) / 2;
+      offY = (H - rows * cellHeight) / 2;
+      buildAtlas();
+      buildDensity();
+      draw();
+    }
+
+    function draw() {
+      if (disposed || !density || !atlas) return;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, W, H);
+      const cw = Math.ceil(cellWidth * dpr);
+      const ch = Math.ceil(cellHeight * dpr);
+      const top = n - 1;
+      const hasPointer = pointer !== null;
+      const px = hasPointer ? pointer.x : 0;
+      const py = hasPointer ? pointer.y : 0;
+      const restShift = (2 * restLevel - 1) * top;
+
+      for (let r = 0; r < rows; r++) {
+        const cy = r * cellHeight + cellHeight / 2;
+        for (let c = 0; c < cols; c++) {
+          const d = density[r * cols + c];
+          if (d < 0.02) continue; // void cell: never draws a glyph
+          let shift;
+          if (!hasPointer) {
+            shift = restShift;
+          } else {
+            const cx = c * cellWidth + cellWidth / 2;
+            const dist = Math.hypot(cx - px, cy - py);
+            let level;
+            if (dist <= radius) {
+              level = 1;
+            } else {
+              const t = (dist - radius) / fall;
+              level = minLevel + (1 - minLevel) * Math.exp(-t * t);
+            }
+            shift = (2 * level - 1) * top;
+            // Positive light snaps fills and strokes to the darkest glyph, but
+            // is gated by density so anti-aliased halos stay faint and letter
+            // gaps and counters do not fill in. Negative light (far away)
+            // applies in full so extremities dissolve.
+            if (shift > 0) shift *= snapGate(d);
+          }
+          let idx = Math.round(d * top + shift);
+          if (idx > top) idx = top;
+          if (idx <= 0) continue;
+          ctx.drawImage(
+            atlas,
+            idx * cw, 0, cw, ch,
+            offX + c * cellWidth, offY + r * cellHeight, cellWidth, cellHeight
+          );
+        }
+      }
+    }
+
+    function schedule() {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        draw();
+      });
+    }
+
+    function onMove(e) {
+      const rect = canvas.getBoundingClientRect();
+      pointer = { x: e.clientX - rect.left - offX, y: e.clientY - rect.top - offY };
+      schedule();
+    }
+    function onLeave() {
+      pointer = null;
+      schedule();
+    }
+
+    const ro = new ResizeObserver(layout);
+    ro.observe(wrap);
+    layout();
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => { if (!disposed) layout(); });
+    }
+
+    window.addEventListener("pointermove", onMove, { passive: true });
+    window.addEventListener("pointerdown", onMove, { passive: true });
+    document.documentElement.addEventListener("mouseleave", onLeave);
+    window.addEventListener("blur", onLeave);
+
+    return () => {
+      disposed = true;
+      if (raf) cancelAnimationFrame(raf);
+      ro.disconnect();
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerdown", onMove);
+      document.documentElement.removeEventListener("mouseleave", onLeave);
+      window.removeEventListener("blur", onLeave);
+    };
+  }, [phrase, ramp, radius, fall, bg, ink, cellWidth, cellHeight, margin, restLevel, minLevel, fontFamily, fontWeight, accents]);
+
+  return (
+    <div
+      ref={wrapRef}
+      className={className}
+      style={{
+        position: "relative",
+        width: "100%",
+        aspectRatio: `${aspect} / 1`,
+        background: bg,
+        overflow: "hidden",
+        ...style,
+      }}
+      role="img"
+      aria-label={phrase}
+    >
+      <canvas ref={canvasRef} style={{ display: "block", position: "absolute", inset: 0 }} />
+    </div>
+  );
+}
+const params = new URLSearchParams(location.search);
+const cw = Number(params.get("cw")) || undefined;
+const ch = Number(params.get("ch")) || undefined;
+ReactDOM.createRoot(document.getElementById("root")).render(<AsciiFooter cellWidth={cw} cellHeight={ch} />);
+</script>
+</body>
+</html>
