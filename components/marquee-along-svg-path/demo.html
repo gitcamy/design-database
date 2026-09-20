@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MarqueeAlongSvgPath demo</title>
+<!--
+  No-build preview. Transpiles the .tsx files in this folder in the browser
+  and resolves the "@/..." aliases to them. For real use, copy the component
+  into a shadcn project (see README.md).
+-->
+<style>html, body { margin: 0; }</style>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/@babel/standalone@7.26.4/babel.min.js"></script>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.3.1",
+    "react/jsx-runtime": "https://esm.sh/react@18.3.1/jsx-runtime",
+    "react-dom": "https://esm.sh/react-dom@18.3.1?external=react",
+    "react-dom/client": "https://esm.sh/react-dom@18.3.1/client?external=react",
+    "motion/react": "https://esm.sh/motion@12/react?external=react,react-dom",
+    "clsx": "https://esm.sh/clsx@2",
+    "tailwind-merge": "https://esm.sh/tailwind-merge@2"
+  }
+}
+</script>
+</head>
+<body>
+<div id="root"></div>
+<script type="module">
+  import React from "react";
+  import { createRoot } from "react-dom/client";
+
+  const babelOptions = (filename) => ({
+    filename,
+    presets: [
+      ["react", { runtime: "automatic" }],
+      ["typescript", { isTSX: true, allExtensions: true }],
+    ],
+  });
+
+  async function load(file, aliases = {}) {
+    const src = await (await fetch(file, { cache: "no-store" })).text();
+    let code = Babel.transform(src, babelOptions(file)).code;
+    for (const [from, to] of Object.entries(aliases)) {
+      code = code.replaceAll(`"${from}"`, `"${to}"`);
+    }
+    return URL.createObjectURL(new Blob([code], { type: "text/javascript" }));
+  }
+
+  const utils = await load("./utils.ts");
+  const component = await load("./marquee-along-svg-path.tsx", { "@/lib/utils": utils });
+  const demo = await load("./demo.tsx", { "@/components/ui/marquee-along-svg-path": component });
+  const { default: Demo } = await import(demo);
+  createRoot(document.getElementById("root")).render(React.createElement(Demo));
+</script>
+</body>
+</html>

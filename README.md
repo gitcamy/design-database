@@ -9,6 +9,7 @@ and a short README describing props and usage.
 | Component | Description |
 |---|---|
 | [ascii-footer](components/ascii-footer/) | Footer that renders a wordmark as an ASCII glyph grid with a cursor-reactive point light. React + canvas. |
+| [marquee-along-svg-path](components/marquee-along-svg-path/) | Marquee that moves items along any SVG path, with drag, hover slowdown, and scroll coupling. React + TypeScript + Tailwind + motion. |
 
 ## Conventions
 
