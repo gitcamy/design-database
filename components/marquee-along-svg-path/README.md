@@ -13,6 +13,7 @@ React + TypeScript + Tailwind + [motion](https://motion.dev).
 | `demo.tsx` | Example usage with 13 Unsplash images on a looping path. |
 | `utils.ts` | The `cn` helper. Identical to what shadcn generates at `lib/utils.ts`. |
 | `demo.html` | No-build preview. Transpiles the files above in the browser. |
+| `framer/MarqueeAlongPath.tsx` | Framer code component port with property controls. |
 
 ## Requirements
 
@@ -143,6 +144,24 @@ import MarqueeAlongSvgPath from "@/components/ui/marquee-along-svg-path"
   Safari 16+. There is no fallback for older browsers.
 - The path `id` is random per render when `pathId` is not given. Pass
   `pathId` under SSR to avoid a hydration mismatch warning.
+
+## Framer
+
+`framer/MarqueeAlongPath.tsx` is a self-contained Framer code component.
+In Framer: Assets, Code, New Code File, paste the file, save, then insert
+it from the command palette. Differences from the React version:
+
+- Inline styles instead of Tailwind, and `framer-motion` instead of `motion/react`.
+- Content comes from an Images array control, or a Layers array of connected
+  canvas layers. With neither set it shows the Unsplash defaults.
+- Per-item hooks live in a child component, so item counts can change from
+  the property panel without breaking the rules of hooks.
+- Always scales the path box to fit the frame, using a ResizeObserver.
+- Static on the canvas, animated in preview and on the published site.
+- Scroll coupling tracks the window, which is what Framer sites scroll.
+- Adds item size, corner radius, upright or path-following rotation, and clip controls.
+
+Set width to Fill and keep a fixed height when placing it in a page stack.
 
 ## Demo
 
