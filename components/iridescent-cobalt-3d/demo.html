@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>iridescent-cobalt-3d</title>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+  }
+}
+</script>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; }
+  body { background: linear-gradient(#FFFFFF 0%, #FFFFFF 35%, #CCD8FF 100%); }
+  /* The soft blue-grey bloom under the objects lives in CSS, not in the scene. */
+  .bloom {
+    position: fixed; left: 50%; bottom: 8%; width: 70vw; height: 22vh; transform: translateX(-50%);
+    background: radial-gradient(closest-side, rgba(170,185,235,0.55), rgba(202,211,240,0) 100%);
+    filter: blur(20px); pointer-events: none;
+  }
+  canvas { position: fixed; inset: 0; display: block; }
+  .bar {
+    position: fixed; z-index: 10; left: 50%; bottom: 18px; transform: translateX(-50%);
+    display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: center;
+    font: 11px/1 "SF Mono", ui-monospace, Menlo, monospace; width: max-content; max-width: calc(100vw - 32px);
+  }
+  .bar button, .bar label {
+    font: inherit; text-transform: uppercase; letter-spacing: 0.12em; padding: 9px 14px;
+    border-radius: 999px; border: 1px solid #1E1E1C22; background: #fff; color: #1E1E1C; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .bar input[type="color"] { width: 18px; height: 18px; padding: 0; border: 0; background: none; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="bloom"></div>
+<div class="bar">
+  <button id="shape">Shape: star + spring</button>
+  <label>Base <input id="color" type="color" value="#243DFB" /></label>
+  <button id="film">Film: on</button>
+  <button id="spin">Spin: on</button>
+</div>
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import {
+  createIridescentMaterial,
+  createStudioEnvironment,
+  starGeometry,
+  springMesh,
+} from "./iridescentCobalt.js";
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.toneMapping = THREE.NeutralToneMapping;
+renderer.toneMappingExposure = 1.0;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 100);
+camera.position.set(0, 0, 10);
+createStudioEnvironment(renderer, scene);
+
+const material = createIridescentMaterial();
+window.material = material; // for tweaking from the console
+
+const star = new THREE.Mesh(starGeometry({ radius: 1.35 }), material);
+const spring = springMesh(material, { coils: 4.5, radius: 0.6, height: 2.6, tube: 0.16 });
+const knot = new THREE.Mesh(new THREE.TorusKnotGeometry(0.9, 0.3, 300, 48), material);
+
+// Three-quarter tilts like the reference.
+star.rotation.set(-0.35, 0.55, -0.2);
+spring.rotation.set(0.5, 0.2, -0.95);
+
+const shapes = [
+  ["star + spring", [star, spring]],
+  ["star", [star]],
+  ["spring", [spring]],
+  ["knot", [knot]],
+];
+let s = 0;
+const root = new THREE.Group();
+scene.add(root);
+
+function layout() {
+  root.clear();
+  const items = shapes[s][1];
+  const wide = innerWidth / innerHeight > 1;
+  items.forEach((m, i) => {
+    if (items.length === 1) m.position.set(0, 0, 0);
+    else if (wide) m.position.set(i === 0 ? -1.9 : 1.9, i === 0 ? -0.3 : 0.4, 0);
+    else m.position.set(0, i === 0 ? 1.5 : -1.7, 0);
+    root.add(m);
+  });
+  document.getElementById("shape").textContent = "Shape: " + shapes[s][0];
+}
+
+function resize() {
+  renderer.setSize(innerWidth, innerHeight);
+  camera.aspect = innerWidth / innerHeight;
+  // Keep the pair in frame on a tall phone screen.
+  camera.position.z = camera.aspect < 1 ? 17 : 10;
+  camera.updateProjectionMatrix();
+  layout();
+}
+addEventListener("resize", resize);
+resize();
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableZoom = false;
+controls.enablePan = false;
+controls.enableDamping = true;
+
+let spin = true;
+document.getElementById("shape").onclick = () => { s = (s + 1) % shapes.length; layout(); };
+document.getElementById("color").oninput = (e) => material.color.set(e.target.value);
+document.getElementById("film").onclick = (e) => {
+  material.iridescence = material.iridescence ? 0 : 1;
+  e.target.textContent = "Film: " + (material.iridescence ? "on" : "off");
+};
+document.getElementById("spin").onclick = (e) => {
+  spin = !spin;
+  e.target.textContent = "Spin: " + (spin ? "on" : "off");
+};
+
+const clock = new THREE.Clock();
+let t = 0;
+renderer.setAnimationLoop(() => {
+  const dt = clock.getDelta();
+  if (spin) {
+    // Slow, so the bands can be seen sliding across the bevels.
+    // Rock rather than spin, so the star never goes edge-on.
+    t += dt;
+    star.rotation.y = 0.55 + Math.sin(t * 0.5) * 0.5;
+    spring.rotation.y = 0.2 + Math.sin(t * 0.4) * 0.6;
+    knot.rotation.y += dt * 0.25;
+  }
+  controls.update();
+  renderer.render(scene, camera);
+});
+</script>
+</body>
+</html>

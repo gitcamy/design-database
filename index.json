@@ -381,6 +381,70 @@
         "async onSubmit with idle, sending, done and error states"
       ],
       "notes": "Derived from a screenshot via the visual-to-prompt skill; brand, copy and mark are not from the reference. watermark accepts a node or an image URL. The bottom-right bloom is tuned for cool colors; use glow={false} on warm ones. The README carries the reusable prompt template."
+    },
+    {
+      "name": "iridescent-cobalt-3d",
+      "path": "components/iridescent-cobalt-3d",
+      "aliases": [
+        "iridescent 3d material",
+        "thin film plastic",
+        "holographic 3d object",
+        "chrome blue 3d shapes",
+        "oil slick material",
+        "dichroic 3d"
+      ],
+      "summary": "Material for any 3D object: glossy opaque cobalt plastic under a banded thin-film iridescent coat. Deep solid blue facing the camera; cyan, violet, magenta and yellow bands on bevels and rims; lavender-white highlights. Ships as a Three.js module (material, studio environment, film thickness map, star and spring helpers) plus image-model and Blender prompts.",
+      "tags": [
+        "3d",
+        "material",
+        "three.js",
+        "webgl",
+        "iridescence",
+        "thin-film",
+        "shader",
+        "product-render",
+        "hero",
+        "prompt",
+        "no-build"
+      ],
+      "stack": [
+        "three.js"
+      ],
+      "language": "js",
+      "dependencies": [
+        "three@>=0.163"
+      ],
+      "setup": [
+        "Import map or bundler that resolves 'three' and 'three/addons/'"
+      ],
+      "files": [
+        {
+          "path": "iridescentCobalt.js",
+          "role": "component",
+          "dest": "lib/iridescentCobalt.js"
+        },
+        {
+          "path": "demo.html",
+          "role": "demo"
+        },
+        {
+          "path": "README.md",
+          "role": "docs"
+        }
+      ],
+      "demo": {
+        "file": "demo.html",
+        "serve": "python3 -m http.server 8772",
+        "build_required": false
+      },
+      "ports": [],
+      "techniques": [
+        "MeshPhysicalMaterial with high ior, light clearcoat and iridescence driven by a banded thickness map",
+        "procedural PMREM studio: mid-dark surround plus very bright white softboxes and rim panels, so the body stays saturated and the film lights up at grazing angles",
+        "NeutralToneMapping to keep saturated blues from shifting purple",
+        "dished extruded face via tessellation plus analytic normals from a smooth-min distance field"
+      ],
+      "notes": "Derived from a screenshot via the visual-to-prompt skill; objects rebuilt from scratch. A material, not a UI component. The README carries the reusable prompt template with image-model, Blender and Three.js variants. WebGL shows the film more faintly than Cycles."
     }
   ]
 }
