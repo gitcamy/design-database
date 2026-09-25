@@ -322,6 +322,65 @@
         "transitions disabled on the first check so a page loaded mid-scroll starts solid"
       ],
       "notes": "Derived from a screen recording via the visual-to-prompt skill; brand, copy and hero image are not from the reference. The menu icon only calls onMenu, no drawer included. The README carries the reusable prompt template."
+    },
+    {
+      "name": "watermark-cta-form",
+      "path": "components/watermark-cta-form",
+      "aliases": [
+        "cta form",
+        "email capture card",
+        "request info form",
+        "newsletter card",
+        "contact cta with logo watermark",
+        "demo request section"
+      ],
+      "summary": "Closing CTA card with an inline email form: one base color lifted by two color-mix corner glows, an oversized brand mark as a faint watermark cropped by the bottom edge, centered headline, paragraph, and input plus button. Background color and watermark mark are both props.",
+      "tags": [
+        "cta",
+        "form",
+        "email",
+        "lead-capture",
+        "card",
+        "watermark",
+        "gradient",
+        "landing",
+        "no-build"
+      ],
+      "stack": [
+        "react"
+      ],
+      "language": "jsx",
+      "dependencies": [],
+      "setup": [
+        "Next.js App Router: add \"use client\" as the first line of the component"
+      ],
+      "files": [
+        {
+          "path": "WatermarkCtaForm.jsx",
+          "role": "component",
+          "dest": "components/WatermarkCtaForm.jsx"
+        },
+        {
+          "path": "demo.html",
+          "role": "demo"
+        },
+        {
+          "path": "README.md",
+          "role": "docs"
+        }
+      ],
+      "demo": {
+        "file": "demo.html",
+        "serve": "python3 -m http.server 8771",
+        "build_required": false
+      },
+      "ports": [],
+      "techniques": [
+        "two radial glows mixed from one base color with color-mix(in oklab), so any bg keeps the same lighting",
+        "watermark as an absolutely positioned currentColor layer behind content in an isolated, overflow-hidden section, sized to card height and cropped at the bottom",
+        "async onSubmit with idle, sending, done and error states"
+      ],
+      "notes": "Derived from a screenshot via the visual-to-prompt skill; brand, copy and mark are not from the reference. watermark accepts a node or an image URL. The bottom-right bloom is tuned for cool colors; use glow={false} on warm ones. The README carries the reusable prompt template."
     }
   ]
 }

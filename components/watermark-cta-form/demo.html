@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>watermark-cta-form</title>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+  html, body { margin: 0; background: #FFFFFF; }
+  #root { padding: 56px 16px 96px; }
+  .bar {
+    position: fixed; z-index: 10; left: 50%; bottom: 18px; transform: translateX(-50%);
+    display: flex; gap: 8px; font: 11px/1 "SF Mono", ui-monospace, Menlo, monospace;
+  }
+  .bar button {
+    font: inherit; text-transform: uppercase; letter-spacing: 0.12em; padding: 9px 14px;
+    border-radius: 999px; border: 1px solid #1E1E1C22; background: #fff; color: #1E1E1C; cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div class="bar">
+  <button id="color">Color: cobalt</button>
+  <button id="mark">Mark: rings</button>
+</div>
+<script>
+// The demo transpiles WatermarkCtaForm.jsx in the browser so there is one
+// source of truth. Serve this folder over http, a file:// open will fail on fetch.
+(async () => {
+  const src = await (await fetch("./WatermarkCtaForm.jsx")).text();
+  const body = src
+    .replace(/^import[\s\S]*?from "react";\n/m, "")
+    .replace("export default function", "function")
+    .replace(/export function/g, "function");
+  const code = Babel.transform(body, { presets: ["react"] }).code;
+  const WatermarkCtaForm = new Function("React", "useId", "useState", code + "; return WatermarkCtaForm;")(
+    React, React.useId, React.useState
+  );
+
+  const colors = [
+    ["cobalt", "#2667E0"],
+    ["violet", "#6455F4"],
+    ["ink", "#1E1E1C"],
+    ["forest", "#1F6B4A"],
+  ];
+  // A second, different mark to show the watermark is swappable.
+  const star = React.createElement("svg", { viewBox: "0 0 200 200", style: { width: "100%", height: "100%" } },
+    React.createElement("path", {
+      fill: "currentColor",
+      d: "M100 0 C112 60 140 88 200 100 C140 112 112 140 100 200 C88 140 60 112 0 100 C60 88 88 60 100 0 Z",
+    })
+  );
+  const marks = [["rings", undefined], ["spark", star]];
+  let c = 0, m = 0;
+
+  const root = ReactDOM.createRoot(document.getElementById("root"));
+  const render = () => {
+    document.getElementById("color").textContent = "Color: " + colors[c][0];
+    document.getElementById("mark").textContent = "Mark: " + marks[m][0];
+    root.render(React.createElement(WatermarkCtaForm, {
+      bg: colors[c][1],
+      watermark: marks[m][1],
+      onSubmit: (email) => new Promise((r) => setTimeout(r, 600)),
+    }));
+  };
+  document.getElementById("color").onclick = () => { c = (c + 1) % colors.length; render(); };
+  document.getElementById("mark").onclick = () => { m = (m + 1) % marks.length; render(); };
+  render();
+})();
+</script>
+</body>
+</html>
