@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "repo": "https://github.com/gitcamy/design-database",
+  "raw_base": "https://raw.githubusercontent.com/gitcamy/design-database/main/",
+  "local_path": "/Users/Cam/dev/design-database",
+  "components": [
+    {
+      "name": "ascii-footer",
+      "path": "components/ascii-footer",
+      "aliases": ["ascii wordmark", "ascii grid footer", "cursor light footer", "megamind footer"],
+      "summary": "Footer that renders a phrase as a fixed grid of monospaced glyphs on a canvas. Letterforms read only through character density; the cursor acts as a soft point light that darkens glyphs within a radius and dissolves them far away. Nothing moves, only the character in each cell changes.",
+      "tags": ["footer", "canvas", "typography", "ascii", "cursor-reactive", "pointer-light", "wordmark", "texture", "no-build"],
+      "stack": ["react", "canvas"],
+      "language": "jsx",
+      "dependencies": [],
+      "setup": [],
+      "files": [
+        { "path": "AsciiFooter.jsx", "role": "component", "dest": "components/AsciiFooter.jsx" },
+        { "path": "demo.html", "role": "demo" },
+        { "path": "README.md", "role": "docs" }
+      ],
+      "demo": { "file": "demo.html", "serve": "python3 -m http.server 8766", "build_required": false },
+      "ports": [],
+      "techniques": [
+        "luminance-per-cell sampling from an offscreen 2x canvas, cached until resize",
+        "glyph atlas indexed by density plus a radial light term",
+        "redraws coalesced to one rAF per pointer event"
+      ],
+      "notes": "Self-contained, no dependencies. Legibility scales with width; below ~900px the wordmark reads as texture."
+    },
+    {
+      "name": "marquee-along-svg-path",
+      "path": "components/marquee-along-svg-path",
+      "aliases": ["marquee on a path", "offset-path marquee", "images along a curve", "path marquee"],
+      "summary": "Marquee that moves its children along an arbitrary SVG path using CSS offset-path. Hover slowdown, drag with inertia, scroll-velocity coupling, direction flipping, rolling z-index, and responsive scaling.",
+      "tags": ["marquee", "svg", "offset-path", "scroll", "drag", "hover", "motion", "hero", "carousel", "responsive"],
+      "stack": ["react", "typescript", "tailwind", "motion", "shadcn"],
+      "language": "tsx",
+      "dependencies": ["motion", "clsx", "tailwind-merge"],
+      "setup": [
+        "shadcn-style project: TypeScript, Tailwind, the @/ alias, and cn exported from @/lib/utils",
+        "Next.js App Router: add \"use client\" as the first line of the component and the demo"
+      ],
+      "files": [
+        { "path": "marquee-along-svg-path.tsx", "role": "component", "dest": "components/ui/marquee-along-svg-path.tsx" },
+        { "path": "demo.tsx", "role": "demo" },
+        { "path": "utils.ts", "role": "helper", "dest": "lib/utils.ts", "skip_if_exists": true },
+        { "path": "demo.html", "role": "demo" },
+        { "path": "README.md", "role": "docs" }
+      ],
+      "demo": { "file": "demo.html", "serve": "python3 -m http.server 8767", "build_required": false },
+      "ports": [
+        { "target": "framer", "path": "framer/MarqueeAlongPath.tsx", "notes": "Self-contained, inline styles, framer-motion, property controls for images/layers/size/radius/rotation/clip." }
+      ],
+      "techniques": [
+        "CSS offset-path: path() driven by a motion value per item",
+        "spring-smoothed scroll velocity added to base velocity",
+        "drag delta mapped to path percentage with decay-based inertia"
+      ],
+      "notes": "Hooks are called inside items.map, so children length and repeat must be stable at runtime or the component needs remounting with a key. offset-path needs Safari 16+."
+    }
+  ]
+}
