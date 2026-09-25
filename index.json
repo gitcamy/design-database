@@ -509,6 +509,73 @@
         "rest gap floored at measured content height so wrapped copy on phones is never covered"
       ],
       "notes": "Derived from a screen recording via the visual-to-prompt skill; brand and copy are not from the reference. Progress 1 needs the section top to reach the viewport top, so a last-on-page section should stay 100vh. The README carries the reusable prompt template."
+    },
+    {
+      "name": "cast-iron-medallion-tilt",
+      "path": "components/cast-iron-medallion-tilt",
+      "aliases": [
+        "cast iron 3d logo",
+        "sandblasted metal medallion",
+        "dark metal coin logo",
+        "3d ring with logo",
+        "cursor tilt 3d object",
+        "gunmetal emblem"
+      ],
+      "summary": "3D medallion in dark sandblasted cast iron: an open ring with an extruded mark floating inside, in a three-quarter pose on near black. Tilts toward the pointer on a critically damped spring with idle drift; fixed lights make highlights slide across the grain. Faces stay near black, grain shows only in raking light. Three.js module plus image, video and code prompts.",
+      "tags": [
+        "3d",
+        "three.js",
+        "webgl",
+        "material",
+        "metal",
+        "cast-iron",
+        "logo",
+        "hero",
+        "cursor-reactive",
+        "tilt",
+        "prompt",
+        "no-build"
+      ],
+      "stack": [
+        "three.js"
+      ],
+      "language": "js",
+      "dependencies": [
+        "three@>=0.163"
+      ],
+      "setup": [
+        "Import map or bundler that resolves 'three' and 'three/addons/'",
+        "renderer.toneMapping = THREE.NeutralToneMapping"
+      ],
+      "files": [
+        {
+          "path": "castIronMedallion.js",
+          "role": "component",
+          "dest": "lib/castIronMedallion.js"
+        },
+        {
+          "path": "demo.html",
+          "role": "demo"
+        },
+        {
+          "path": "README.md",
+          "role": "docs"
+        }
+      ],
+      "demo": {
+        "file": "demo.html",
+        "serve": "python3 -m http.server 8774",
+        "build_required": false
+      },
+      "ports": [],
+      "techniques": [
+        "normal map and roughness map baked from one tileable value-noise height field so bumps and sparkle agree",
+        "near-black faces from a very dim RoomEnvironment, not dark albedo; a raking key light lights side walls and grain",
+        "yaw plus pitch about a diagonal gives a leaning ellipse with the mark upright (roll would tilt the mark)",
+        "SmoothDamp-style critically damped spring toward rest + pointer*maxTilt + idle sine, no overshoot",
+        "lights fixed while the object rotates so highlights travel across the grain"
+      ],
+      "notes": "Derived from a screen recording via the visual-to-prompt skill; the mark and all branding are not from the reference. Rest pose and cursor trigger are inferred. WebGL sparkles less than Cycles; the README template has a path-traced route. Pass any THREE.Shape[] (e.g. from SVGLoader) as the mark."
     }
   ]
 }

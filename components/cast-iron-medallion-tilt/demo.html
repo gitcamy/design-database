@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>cast-iron-medallion-tilt</title>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+  }
+}
+</script>
+<style>
+  html, body { margin: 0; height: 100%; background: #272727; overflow: hidden; }
+  canvas { display: block; }
+  .note {
+    position: fixed; left: 20px; bottom: 18px; color: #8A8A8A;
+    font: 11px/1.4 "SF Mono", ui-monospace, Menlo, monospace; letter-spacing: 0.08em; text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+<div class="note">Move the pointer. Idle drift when still.</div>
+<script type="module">
+import * as THREE from "three";
+import { createCastIronMaterial, createMedallion, addMedallionLights, createTiltController } from "./castIronMedallion.js";
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.toneMapping = THREE.NeutralToneMapping;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color("#272727");
+// Close 35mm-ish camera so the ring overflows the frame top and bottom.
+const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 50);
+camera.position.set(0, 0, 3.1);
+
+addMedallionLights(scene, renderer);
+const medallion = createMedallion({ material: createCastIronMaterial() });
+scene.add(medallion);
+// Optional rest pose from the URL, e.g. demo.html#-45,-30,0 (yaw, pitch, roll in degrees).
+const [yaw, pitch, roll] = location.hash.slice(1).split(",").map(Number);
+const tilt = createTiltController(medallion, location.hash ? { rest: { yaw, pitch, roll: roll || 0 } } : {});
+
+function resize() {
+  const w = innerWidth, h = innerHeight;
+  renderer.setSize(w, h);
+  camera.aspect = w / h;
+  // Keep the ring centre slightly right of frame centre on wide screens.
+  tilt.group.position.x = w > h ? 0.25 : 0;
+  camera.position.z = w > h ? 2.55 : 3.9;
+  camera.updateProjectionMatrix();
+}
+addEventListener("resize", resize);
+resize();
+
+const clock = new THREE.Clock();
+renderer.setAnimationLoop(() => {
+  tilt.update(clock.getDelta());
+  renderer.render(scene, camera);
+});
+</script>
+</body>
+</html>
