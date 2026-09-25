@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>before-after-drag-reveal</title>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+  html, body { margin: 0; background: #FAF7FD; }
+  .sub {
+    text-align: center; margin: 48px 16px 0;
+    font: 400 14px/1.4 Inter, "Helvetica Neue", Arial, sans-serif; color: #4A4A58;
+  }
+  .readout {
+    text-align: center; margin: 8px 0 48px;
+    font: 11px/1 "SF Mono", ui-monospace, Menlo, monospace; letter-spacing: 0.08em; color: #8A8A92;
+  }
+</style>
+</head>
+<body>
+<p class="sub">Drag the line to compare the old flow with the new one</p>
+<div id="root"></div>
+<p class="readout" id="readout">X = 50%</p>
+<script>
+// The demo transpiles BeforeAfterReveal.jsx in the browser so there is one
+// source of truth. Serve this folder over http, a file:// open will fail on fetch.
+(async () => {
+  const src = await (await fetch("./BeforeAfterReveal.jsx")).text();
+  const body = src
+    .replace(/^import[\s\S]*?from "react";\n/m, "")
+    .replace("export default function", "function")
+    .replace(/export function/g, "function");
+  const code = Babel.transform(body, { presets: ["react"] }).code;
+  const BeforeAfterReveal = new Function(
+    "React", "useCallback", "useEffect", "useRef", "useState",
+    code + "; return BeforeAfterReveal;"
+  )(React, React.useCallback, React.useEffect, React.useRef, React.useState);
+
+  const params = new URLSearchParams(location.search);
+  const initial = Number(params.get("x") ?? 50);
+  const readout = document.getElementById("readout");
+
+  ReactDOM.createRoot(document.getElementById("root")).render(
+    React.createElement(BeforeAfterReveal, {
+      initial,
+      onChange: (x) => { readout.textContent = "X = " + Math.round(x) + "%"; },
+    })
+  );
+})();
+</script>
+</body>
+</html>

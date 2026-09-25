@@ -202,6 +202,67 @@
         "post-settle zoom applied to the source rectangle so the tile grid stays locked while the image moves"
       ],
       "notes": "Derived from a screen recording via the visual-to-prompt skill; brand, copy and imagery are not from the reference. Paints a procedural stand-in when no image is given. getImageData taints on a cross-origin image without CORS. The README carries the reusable prompt template."
+    },
+    {
+      "name": "before-after-drag-reveal",
+      "path": "components/before-after-drag-reveal",
+      "aliases": [
+        "before after slider",
+        "comparison slider",
+        "drag to compare",
+        "with vs without",
+        "image compare slider",
+        "split reveal"
+      ],
+      "summary": "Before/after comparison section: one mockup rendered twice in identical layout, stacked, with a draggable vertical divider. Left of the line shows AFTER, right shows BEFORE. The divider only moves a clip boundary, so cards, charts and numbers switch state exactly where the line crosses them. No easing, no fades.",
+      "tags": [
+        "comparison",
+        "before-after",
+        "slider",
+        "drag",
+        "clip-path",
+        "pointer",
+        "dashboard",
+        "landing",
+        "accessible",
+        "no-build"
+      ],
+      "stack": [
+        "react"
+      ],
+      "language": "jsx",
+      "dependencies": [],
+      "setup": [
+        "Next.js App Router: add \"use client\" as the first line of the component"
+      ],
+      "files": [
+        {
+          "path": "BeforeAfterReveal.jsx",
+          "role": "component",
+          "dest": "components/BeforeAfterReveal.jsx"
+        },
+        {
+          "path": "demo.html",
+          "role": "demo"
+        },
+        {
+          "path": "README.md",
+          "role": "docs"
+        }
+      ],
+      "demo": {
+        "file": "demo.html",
+        "serve": "python3 -m http.server 8769",
+        "build_required": false
+      },
+      "ports": [],
+      "techniques": [
+        "two identical layouts stacked, the top one clipped with clip-path: inset(0 calc(100% - var(--x)) 0 0) so the cut runs mid-card",
+        "top layer opaque and isolated so transparent frames and z-indexed children underneath cannot bleed through",
+        "pointer capture on the whole frame, rAF-coalesced 1:1 tracking, no easing",
+        "handle doubles as a role=slider with arrow, Home and End keys"
+      ],
+      "notes": "Derived from a screen recording via the visual-to-prompt skill; brand, copy and icons are not from the reference. Ships a placeholder DashboardMockup (named export) used when before/after are omitted. Both layers must be the same size. The README carries the reusable prompt template."
     }
   ]
 }
