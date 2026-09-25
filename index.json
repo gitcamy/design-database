@@ -263,6 +263,65 @@
         "handle doubles as a role=slider with arrow, Home and End keys"
       ],
       "notes": "Derived from a screen recording via the visual-to-prompt skill; brand, copy and icons are not from the reference. Ships a placeholder DashboardMockup (named export) used when before/after are omitted. Both layers must be the same size. The README carries the reusable prompt template."
+    },
+    {
+      "name": "transparent-to-solid-nav",
+      "path": "components/transparent-to-solid-nav",
+      "aliases": [
+        "scroll nav",
+        "sticky header that turns white",
+        "transparent header on scroll",
+        "nav background on scroll",
+        "solid nav on scroll"
+      ],
+      "summary": "Fixed top nav that is transparent with light ink over the hero, and switches to a solid (white or colored) bar with dark ink once the page scrolls past a few pixels. A two-state switch with a 250ms crossfade, not scroll-linked progress. Height, layout, logo and CTA never change.",
+      "tags": [
+        "navigation",
+        "header",
+        "nav",
+        "scroll",
+        "sticky",
+        "fixed",
+        "transparent",
+        "landing",
+        "no-build"
+      ],
+      "stack": [
+        "react"
+      ],
+      "language": "jsx",
+      "dependencies": [],
+      "setup": [
+        "Next.js App Router: add \"use client\" as the first line of the component"
+      ],
+      "files": [
+        {
+          "path": "ScrollNav.jsx",
+          "role": "component",
+          "dest": "components/ScrollNav.jsx"
+        },
+        {
+          "path": "demo.html",
+          "role": "demo"
+        },
+        {
+          "path": "README.md",
+          "role": "docs"
+        }
+      ],
+      "demo": {
+        "file": "demo.html",
+        "serve": "python3 -m http.server 8770",
+        "build_required": false
+      },
+      "ports": [],
+      "techniques": [
+        "boolean data-scrolled at a small threshold, not scroll-linked progress",
+        "background on its own absolutely positioned layer so only opacity animates and nothing reflows",
+        "ink via one CSS variable with a shorter transition than the background",
+        "transitions disabled on the first check so a page loaded mid-scroll starts solid"
+      ],
+      "notes": "Derived from a screen recording via the visual-to-prompt skill; brand, copy and hero image are not from the reference. The menu icon only calls onMenu, no drawer included. The README carries the reusable prompt template."
     }
   ]
 }

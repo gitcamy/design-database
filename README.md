@@ -12,6 +12,7 @@ and a short README describing props and usage.
 | [marquee-along-svg-path](components/marquee-along-svg-path/) | Marquee that moves items along any SVG path, with drag, hover slowdown, and scroll coupling. React + TypeScript + Tailwind + motion. |
 | [mosaic-hero-open](components/mosaic-hero-open/) | Hero that opens by expanding a pill to full bleed, with a screen-space tile mosaic that resolves as it grows. React + canvas. |
 | [before-after-drag-reveal](components/before-after-drag-reveal/) | Before/after comparison with a draggable divider that clips one layout over an identical one, cutting cards mid-way. React, no dependencies. |
+| [transparent-to-solid-nav](components/transparent-to-solid-nav/) | Fixed nav that is transparent over the hero and switches to a solid white or colored bar on scroll. React, no dependencies. |
 
 ## Conventions
 

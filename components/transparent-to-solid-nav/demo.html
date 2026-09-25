@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>transparent-to-solid-nav</title>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+  html, body { margin: 0; background: #FCFAF6; font: 400 16px/1.5 Inter, "Helvetica Neue", Arial, sans-serif; color: #1E1E1C; }
+  /* Procedural stand-in for a photographic hero: bright sky left, dark warm subject right. */
+  .hero {
+    height: 100vh; min-height: 560px; position: relative;
+    background:
+      radial-gradient(60% 90% at 78% 55%, #6E4630 0%, #3A1D10 45%, transparent 75%),
+      linear-gradient(100deg, #73A2D7 0%, #8DB4DF 35%, #5E3724 62%, #2E170E 100%);
+  }
+  .hero h1 {
+    position: absolute; left: 60px; bottom: 72px; margin: 0; max-width: 11ch;
+    font: 400 clamp(40px, 6vw, 84px)/1 "Inter Tight", Inter, sans-serif; letter-spacing: -0.03em; color: #fff;
+  }
+  .content { max-width: 720px; margin: 0 auto; padding: 96px 20px 160vh; }
+  .content p { margin: 0 0 20px; color: #4A4A48; }
+  .bar {
+    position: fixed; z-index: 60; left: 50%; bottom: 18px; transform: translateX(-50%);
+    display: flex; gap: 8px; font: 11px/1 "SF Mono", ui-monospace, Menlo, monospace;
+  }
+  .bar button {
+    font: inherit; text-transform: uppercase; letter-spacing: 0.12em; padding: 9px 14px;
+    border-radius: 999px; border: 1px solid #1E1E1C22; background: #fff; color: #1E1E1C; cursor: pointer;
+  }
+  @media (max-width: 767px) { .hero h1 { left: 20px; } }
+</style>
+</head>
+<body>
+<div id="nav"></div>
+<section class="hero"><h1>Design that holds up on arrival.</h1></section>
+<section class="content">
+  <p>Scroll a few pixels and the bar switches to solid. Scroll back to the very top and it clears again.</p>
+  <p>Placeholder copy. The nav's height, layout and CTA never change; only its background opacity and ink color do.</p>
+</section>
+<div class="bar"><button id="theme">Solid: white</button></div>
+<script>
+// The demo transpiles ScrollNav.jsx in the browser so there is one source of
+// truth. Serve this folder over http, a file:// open will fail on fetch.
+(async () => {
+  const src = await (await fetch("./ScrollNav.jsx")).text();
+  const body = src
+    .replace(/^import[\s\S]*?from "react";\n/m, "")
+    .replace("export default function", "function");
+  const code = Babel.transform(body, { presets: ["react"] }).code;
+  const ScrollNav = new Function("React", "useEffect", "useState", code + "; return ScrollNav;")(
+    React, React.useEffect, React.useState
+  );
+
+  const themes = [
+    { name: "white", solidBg: "#FFFFFF", scrolledInk: "#1E1E1C" },
+    { name: "ink", solidBg: "#1E1E1C", scrolledInk: "#FFFFFF" },
+    { name: "violet", solidBg: "#6455F4", scrolledInk: "#FFFFFF" },
+  ];
+  let t = 0;
+  const root = ReactDOM.createRoot(document.getElementById("nav"));
+  const render = () => {
+    const { name, ...props } = themes[t];
+    document.getElementById("theme").textContent = "Solid: " + name;
+    root.render(React.createElement(ScrollNav, props));
+  };
+  document.getElementById("theme").onclick = () => { t = (t + 1) % themes.length; render(); };
+  render();
+})();
+</script>
+</body>
+</html>
