@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>mosaic-hero-open</title>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+  html, body { margin: 0; height: 100%; background: #fff; }
+  #root { height: 100%; }
+  .bar {
+    position: fixed; z-index: 10; left: 50%; bottom: 18px; transform: translateX(-50%);
+    display: flex; gap: 8px; align-items: center;
+    font: 11px/1 "SF Mono", ui-monospace, Menlo, monospace; letter-spacing: 0.08em;
+  }
+  .bar button {
+    font: inherit; text-transform: uppercase; letter-spacing: 0.12em;
+    padding: 9px 14px; border-radius: 999px; border: 1px solid #0a0b0a22;
+    background: #fff; color: #0a0b0a; cursor: pointer;
+  }
+  .bar button:hover { background: #0a0b0a; color: #fff; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div class="bar">
+  <button id="replay">Replay</button>
+  <button id="cell">Cell size</button>
+</div>
+<script>
+// The demo transpiles MosaicHeroOpen.jsx in the browser so there is one source
+// of truth. Serve this folder over http, a file:// open will fail on fetch.
+(async () => {
+  const src = await (await fetch("./MosaicHeroOpen.jsx")).text();
+  const body = src
+    .replace(/^import[\s\S]*?from "react";\n/m, "")
+    .replace("export default function", "function");
+  const code = Babel.transform(body, { presets: ["react"] }).code;
+  const MosaicHeroOpen = new Function(
+    "React", "useCallback", "useEffect", "useMemo", "useRef", "useState",
+    code + "; return MosaicHeroOpen;"
+  )(React, React.useCallback, React.useEffect, React.useMemo, React.useRef, React.useState);
+
+  const params = new URLSearchParams(location.search);
+  const cells = [10, 19, 32, 56];
+  let cellIndex = Math.max(0, cells.indexOf(Number(params.get("cell")) || 19));
+  let run = 0;
+
+  const root = ReactDOM.createRoot(document.getElementById("root"));
+  const render = () =>
+    root.render(React.createElement(MosaicHeroOpen, { key: run, cell: cells[cellIndex] }));
+
+  document.getElementById("replay").onclick = () => { run++; render(); };
+  document.getElementById("cell").onclick = () => {
+    cellIndex = (cellIndex + 1) % cells.length;
+    run++;
+    render();
+  };
+  render();
+})();
+</script>
+</body>
+</html>
