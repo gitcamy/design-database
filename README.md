@@ -15,6 +15,7 @@ and a short README describing props and usage.
 | [transparent-to-solid-nav](components/transparent-to-solid-nav/) | Fixed nav that is transparent over the hero and switches to a solid white or colored bar on scroll. React, no dependencies. |
 | [watermark-cta-form](components/watermark-cta-form/) | CTA card with an inline email form, color-mixed corner glows, and a cropped low-opacity logo watermark. Color and mark are props. React, no dependencies. |
 | [iridescent-cobalt-3d](components/iridescent-cobalt-3d/) | Material for any 3D object: glossy cobalt plastic with a banded thin-film iridescent coat. Three.js module and demo, plus image-model and Blender prompts. |
+| [lens-part-cta-reveal](components/lens-part-cta-reveal/) | Closing CTA revealed on scroll by two soft-lit ellipses that part like an opening lens, clipping and brightening the headline between them. React, no dependencies. |
 
 ## Conventions
 

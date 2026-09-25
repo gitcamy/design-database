@@ -445,6 +445,70 @@
         "dished extruded face via tessellation plus analytic normals from a smooth-min distance field"
       ],
       "notes": "Derived from a screenshot via the visual-to-prompt skill; objects rebuilt from scratch. A material, not a UI component. The README carries the reusable prompt template with image-model, Blender and Three.js variants. WebGL shows the film more faintly than Cycles."
+    },
+    {
+      "name": "lens-part-cta-reveal",
+      "path": "components/lens-part-cta-reveal",
+      "aliases": [
+        "lens reveal",
+        "parting lobes",
+        "eyelid reveal",
+        "scroll reveal cta",
+        "ellipses part on scroll",
+        "closing cta reveal",
+        "purple cta reveal"
+      ],
+      "summary": "Closing CTA section revealed on scroll by two oversized soft-lit ellipses (one hanging from above, one rising from below) that part like an opening lens. The lobes sit in front of the content and clip it; the headline, paragraph and CTA brighten from 10% to full as the gap opens. Scroll-scrubbed, single hue family, depth only from rim highlights and a cast shade.",
+      "tags": [
+        "cta",
+        "section",
+        "scroll",
+        "scroll-linked",
+        "reveal",
+        "parallax",
+        "ellipse",
+        "gradient",
+        "landing",
+        "no-build"
+      ],
+      "stack": [
+        "react"
+      ],
+      "language": "jsx",
+      "dependencies": [],
+      "setup": [
+        "Next.js App Router: add \"use client\" as the first line of the component",
+        "Load a serif with italics (default Newsreader) or pass the serif prop"
+      ],
+      "files": [
+        {
+          "path": "LensPartReveal.jsx",
+          "role": "component",
+          "dest": "components/LensPartReveal.jsx"
+        },
+        {
+          "path": "demo.html",
+          "role": "demo"
+        },
+        {
+          "path": "README.md",
+          "role": "docs"
+        }
+      ],
+      "demo": {
+        "file": "demo.html",
+        "serve": "python3 -m http.server 8773",
+        "build_required": false
+      },
+      "ports": [],
+      "techniques": [
+        "oversized border-radius:50% ellipses whose height is solved from a target edge sag, so curvature holds at any width",
+        "scroll progress from the section's bounding rect written straight to transform/opacity in one rAF, no re-render",
+        "ease-in gap fitted to the reference as restGap * p^1.5",
+        "rim highlight and gap shade from inset plus outer box-shadows that follow the elliptical radius",
+        "rest gap floored at measured content height so wrapped copy on phones is never covered"
+      ],
+      "notes": "Derived from a screen recording via the visual-to-prompt skill; brand and copy are not from the reference. Progress 1 needs the section top to reach the viewport top, so a last-on-page section should stay 100vh. The README carries the reusable prompt template."
     }
   ]
 }
