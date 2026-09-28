@@ -570,12 +570,14 @@
       "ports": [],
       "techniques": [
         "normal map and roughness map baked from one tileable value-noise height field so bumps and sparkle agree",
+        "glint pass injected via onBeforeCompile: hashed per-cell facet normals with a tight specular lobe against the first directional light, weighted toward grazing angles",
+        "mark UVs scaled by the same factor as its geometry so grain and glints match the ring",
         "near-black faces from a very dim RoomEnvironment, not dark albedo; a raking key light lights side walls and grain",
         "yaw plus pitch about a diagonal gives a leaning ellipse with the mark upright (roll would tilt the mark)",
         "SmoothDamp-style critically damped spring toward rest + pointer*maxTilt + idle sine, no overshoot",
         "lights fixed while the object rotates so highlights travel across the grain"
       ],
-      "notes": "Derived from a screen recording via the visual-to-prompt skill; the mark and all branding are not from the reference. Rest pose and cursor trigger are inferred. WebGL sparkles less than Cycles; the README template has a path-traced route. Pass any THREE.Shape[] (e.g. from SVGLoader) as the mark."
+      "notes": "Derived from a screen recording via the visual-to-prompt skill; the mark and all branding are not from the reference. Rest pose and cursor trigger are inferred. Glints follow the first DirectionalLight in the scene; the README template also has a path-traced route. Pass any THREE.Shape[] (e.g. from SVGLoader) as the mark."
     }
   ]
 }

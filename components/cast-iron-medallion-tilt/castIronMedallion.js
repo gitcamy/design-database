@@ -15,7 +15,41 @@ export const CAST_IRON_DEFAULTS = {
   roughness: 0.45,
   grainScale: 16, // texture repeats per unit; higher is finer grain
   normalStrength: 1.4,
+  // Glints: tiny facets fixed to the surface, each with its own random tilt.
+  // A facet flashes when its tilt lines up with the key light and the eye.
+  sparkle: true,
+  sparkleDensity: 14, // facets per grain tile, per axis (~1.5px at 800px wide)
+  sparkleCoverage: 0.45, // share of facets that can glint
+  sparkleSpread: 0.9, // how far facet tilts wander from the surface normal
+  sparkleSharpness: 110, // specular exponent; higher is smaller, harder glints
+  sparkleIntensity: 7,
+  sparkleFacing: 0.25, // glint strength on camera-facing faces vs grazing edges (1)
+  sparkleColor: "#FFFFFF",
 };
+
+// Hash-based glints added after lighting, keyed to the first directional light
+// in the scene (the key light from addMedallionLights).
+const SPARKLE_HEAD = /* glsl */ `
+uniform float spDensity, spCoverage, spSpread, spSharpness, spIntensity, spFacing;
+uniform vec3 spColor;
+float spHash(vec2 p) { p = fract(p * vec2(443.897, 441.423)); p += dot(p, p.yx + 19.19); return fract((p.x + p.y) * p.x); }
+`;
+const SPARKLE_BODY = /* glsl */ `
+#if NUM_DIR_LIGHTS > 0
+{
+  vec2 cell = floor(vNormalMapUv * spDensity);
+  vec3 jitter = vec3(spHash(cell), spHash(cell + 17.1), spHash(cell + 41.7)) - 0.5;
+  float on = step(1.0 - spCoverage, spHash(cell + 7.3));
+  vec3 facet = normalize(normal + jitter * spSpread);
+  vec3 L = directionalLights[0].direction;
+  vec3 V = geometryViewDir;
+  float glint = pow(max(dot(facet, normalize(L + V)), 0.0), spSharpness);
+  float lit = smoothstep(0.0, 0.15, dot(nonPerturbedNormal, L));
+  float edge = mix(spFacing, 1.0, pow(1.0 - clamp(dot(nonPerturbedNormal, V), 0.0, 1.0), 1.5));
+  outgoingLight += spColor * glint * on * lit * edge * spIntensity;
+}
+#endif
+`;
 
 // Tileable value noise, several octaves, as a Float32 height field.
 function heightField(size, seed = 7) {
@@ -77,7 +111,7 @@ export function createCastIronMaterial(opts = {}) {
   const o = { ...CAST_IRON_DEFAULTS, ...opts };
   const { normalMap, roughnessMap } = createGrainMaps(512, o.normalStrength);
   for (const t of [normalMap, roughnessMap]) t.repeat.set(o.grainScale, o.grainScale);
-  return new THREE.MeshStandardMaterial({
+  const material = new THREE.MeshStandardMaterial({
     color: o.color,
     metalness: o.metalness,
     roughness: o.roughness,
@@ -85,6 +119,27 @@ export function createCastIronMaterial(opts = {}) {
     roughnessMap,
     normalScale: new THREE.Vector2(1, 1),
   });
+  if (!o.sparkle) return material;
+
+  // Live uniforms: change material.userData.sparkle.<name>.value at runtime.
+  const u = {
+    spDensity: { value: o.sparkleDensity },
+    spCoverage: { value: o.sparkleCoverage },
+    spSpread: { value: o.sparkleSpread },
+    spSharpness: { value: o.sparkleSharpness },
+    spIntensity: { value: o.sparkleIntensity },
+    spFacing: { value: o.sparkleFacing },
+    spColor: { value: new THREE.Color(o.sparkleColor) },
+  };
+  material.userData.sparkle = u;
+  material.onBeforeCompile = (shader) => {
+    Object.assign(shader.uniforms, u);
+    shader.fragmentShader = shader.fragmentShader
+      .replace("#include <common>", "#include <common>\n" + SPARKLE_HEAD)
+      .replace("#include <opaque_fragment>", SPARKLE_BODY + "\n#include <opaque_fragment>");
+  };
+  material.customProgramCacheKey = () => "cast-iron-sparkle";
+  return material;
 }
 
 // Default mark: a geometric "ML" monogram from straight strokes, in a unit box
@@ -114,7 +169,7 @@ export function createMedallion({
   bandWidth = 0.05,
   bandDepth = 0.08,
   markDepth = 0.12,
-  bevel = 0.006,
+  bevel = 0.012,
 } = {}) {
   const group = new THREE.Group();
 
@@ -122,22 +177,27 @@ export function createMedallion({
   ring.holes.push(new THREE.Path().absarc(0, 0, 1 - bandWidth, 0, Math.PI * 2, true));
   const ringGeo = new THREE.ExtrudeGeometry(ring, {
     depth: bandDepth, curveSegments: 160, bevelEnabled: true,
-    bevelThickness: bevel, bevelSize: bevel, bevelSegments: 2,
+    bevelThickness: bevel, bevelSize: bevel, bevelSegments: 3,
   });
   ringGeo.translate(0, 0, -bandDepth / 2);
   group.add(new THREE.Mesh(ringGeo, material));
 
   const { shapes, offset = new THREE.Vector2(), scale = 1 } = Array.isArray(mark) ? { shapes: mark } : mark;
+  const s = scale * markScale * 2;
   const markGeo = new THREE.ExtrudeGeometry(shapes, {
-    depth: markDepth / (scale * markScale * 2), bevelEnabled: true,
-    bevelThickness: bevel / (scale * markScale * 2), bevelSize: bevel / (scale * markScale * 2), bevelSegments: 2,
+    depth: markDepth / s, bevelEnabled: true,
+    bevelThickness: bevel / s, bevelSize: bevel / s, bevelSegments: 3,
   });
   markGeo.computeBoundingBox();
   const bb = markGeo.boundingBox;
   markGeo.translate(-(bb.min.x + bb.max.x) / 2 + offset.x, -(bb.min.y + bb.max.y) / 2 + offset.y, -(bb.min.z + bb.max.z) / 2);
-  const markMesh = new THREE.Mesh(markGeo, material);
-  markMesh.scale.setScalar(scale * markScale * 2);
-  group.add(markMesh);
+  // Bake the scale into positions AND uvs. ExtrudeGeometry uvs are in shape
+  // units, so scaling only the mesh would make the grain finer on the mark
+  // than on the ring.
+  markGeo.scale(s, s, s);
+  const uv = markGeo.attributes.uv;
+  for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * s, uv.getY(i) * s);
+  group.add(new THREE.Mesh(markGeo, material));
 
   return group;
 }

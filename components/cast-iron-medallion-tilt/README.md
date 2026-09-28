@@ -82,6 +82,16 @@ made from the same grain.
 | `roughness` | `0.45` | Multiplied by the roughness map, which varies around it |
 | `grainScale` | `16` | Texture repeats per unit. Higher is finer grain |
 | `normalStrength` | `1.4` | Depth of the grain |
+| `sparkle` | `true` | Glint layer on top of the lighting. False gives a plain `MeshStandardMaterial` |
+| `sparkleDensity` | `14` | Facets per grain tile, per axis. About 1.5px each at 800px wide |
+| `sparkleCoverage` | `0.45` | Share of facets that can glint at all |
+| `sparkleSpread` | `0.9` | How far each facet's tilt wanders from the surface normal. Higher spreads glints over more of the surface |
+| `sparkleSharpness` | `110` | Specular exponent. Higher is smaller, harder glints |
+| `sparkleIntensity` | `7` | |
+| `sparkleFacing` | `0.25` | Glint strength on camera-facing faces, relative to grazing edges (1) |
+| `sparkleColor` | `"#FFFFFF"` | |
+
+Sparkle values are live uniforms: `material.userData.sparkle.spIntensity.value = 4`.
 
 ### `createMedallion(opts)`
 
@@ -95,7 +105,7 @@ Returns a `THREE.Group`. Ring radius is 1.
 | `bandWidth` | `0.05` | Radial width (2.5% of diameter) |
 | `bandDepth` | `0.08` | Ring depth (4% of diameter) |
 | `markDepth` | `0.12` | Extrusion depth of the mark, about its stroke width |
-| `bevel` | `0.006` | Hairline bevel so edges catch light |
+| `bevel` | `0.012` | Small rounded bevel so every edge catches a line of light |
 
 ### `addMedallionLights(scene, renderer, opts)`
 
@@ -129,21 +139,38 @@ Returns `{ group, update(dt), dispose() }`. Position the medallion by moving
    room. Faces toward the camera therefore show little, while a hard key
    light raking from the upper right lights the side walls, the top-right
    arc, and the grain's upward bumps.
-3. **Yaw plus pitch, not roll.** A disc turned about a diagonal axis gives
+3. **Glints are facets, not texture.** Standard rough-metal shading
+   averages the grain into a soft sheen, so the sparkle is added on top. The
+   surface is divided into tiny cells in texture space. Each cell gets a
+   hashed random tilt, and a hashed on/off so only some can glint. It flashes
+   with a very tight specular lobe when its tilted normal lines up with the
+   key light and the eye. It is weighted toward grazing angles, and only on
+   the side of the object facing the key. Facets are fixed to the surface,
+   so they twinkle on and off as the object turns. It is injected into
+   `MeshStandardMaterial` with `onBeforeCompile` and uses the first
+   directional light in the scene.
+4. **One grain size everywhere.** The mark is extruded at its own size and
+   then scaled, so its UVs are scaled by the same factor. Otherwise the grain
+   and glints on the mark come out finer than on the ring.
+5. **Yaw plus pitch, not roll.** A disc turned about a diagonal axis gives
    the leaning ellipse from the reference with the mark still upright.
    Rolling in the screen plane tilts the mark too.
-4. **A critically damped spring.** Each axis uses a SmoothDamp-style
+6. **A critically damped spring.** Each axis uses a SmoothDamp-style
    integrator toward `rest + pointer × maxTilt + idle`. It never overshoots,
    matching the reference's 0.8s swing and 0.4 to 0.6s return.
-5. **Lights never rotate.** Only the object turns, so highlights travel
+7. **Lights never rotate.** Only the object turns, so highlights travel
    across the surface, which is most of what makes the motion read as
    heavy metal.
-6. `prefers-reduced-motion` holds the rest pose with no drift or tilt.
+8. `prefers-reduced-motion` holds the rest pose with no drift or tilt.
 
 ## Caveats
 
-- WebGL shows less edge sparkle than a path-traced render. For stills or
-  video, use the Blender/Cycles route in the template below.
+- Glints are about 1.5px and can shimmer on low-DPI screens while moving.
+  Lower `sparkleDensity` for bigger, steadier glints. A path-traced render
+  (the Cycles route in the template below) is still smoother for stills and
+  video.
+- The glints follow the first `DirectionalLight` added to the scene. Add the
+  key light first if you build your own lights.
 - Rest-pose angles and the cursor trigger are inferred from the recording.
   The cursor was out of frame during the swings, so the source may have been
   driven by scroll.
@@ -164,10 +191,14 @@ Ring: flat band, rectangular cross-section, radial width 2.5% of diameter, depth
 diameter, so the inner wall reads as a thin strip when tilted.
 Mark: spans [MARK SCALE, default 50%] of ring diameter, centred in the ring's plane and not
 touching it. Stroke width about 6% of diameter, extrusion depth equal to stroke width, square
-ends, hairline bevel (0.3% of diameter) so edges catch light.
+ends, small rounded bevel (0.6% of diameter) so every edge catches a line of light. Ring and mark
+carry the same grain size.
 Material: dark sandblasted cast iron. Metalness 1, roughness 0.55, fine granular normal map
 (grain about 0.15% of frame width) plus matching roughness noise. The grain must appear as
 sparkle only on grazing-lit edges; faces pointed at the camera stay near black.
+Sparkle: pinpoint white glints about 1.5px across, from microscopic facets tilted at random,
+fixed to the surface so they twinkle as it turns. Dense along lit edges, bevels and side
+walls, sparse on camera-facing faces, none on the side away from the key light.
 Lighting: one hard key light upper right, raking the top-right arc and the upper faces of the
 extrusions; a very faint fill from the left; a very dim neutral environment. No visible
 reflections of a scene.
@@ -204,7 +235,8 @@ A) Render or video: [DURATION, default 8s] seamless loop at 60fps. Hold the rest
    similar), no motion blur, no depth of field.
 B) Code: Three.js. Ring as an ExtrudeGeometry of an annulus, mark as an extruded SVG path.
    MeshStandardMaterial with a procedural normal map and roughness map from one shared noise
-   height field. One DirectionalLight key, a faint fill, and a dim RoomEnvironment at low
+   height field, plus an onBeforeCompile glint pass: hashed per-cell facet normals with a
+   tight specular lobe against the key light, weighted toward grazing angles. One DirectionalLight key, a faint fill, and a dim RoomEnvironment at low
    environmentIntensity. Pointer position feeds target yaw and pitch, damped each frame with a
    critically damped spring (smoothTime about 0.25). Props: mark, markScale, bg, metal colour,
    roughness, grainScale, maxTilt, restRotation, idleAmplitude.
