@@ -17,6 +17,7 @@ and a short README describing props and usage.
 | [iridescent-cobalt-3d](components/iridescent-cobalt-3d/) | Material for any 3D object: glossy cobalt plastic with a banded thin-film iridescent coat. Three.js module and demo, plus image-model and Blender prompts. |
 | [lens-part-cta-reveal](components/lens-part-cta-reveal/) | Closing CTA revealed on scroll by two soft-lit ellipses that part like an opening lens, clipping and brightening the headline between them. React, no dependencies. |
 | [cast-iron-medallion-tilt](components/cast-iron-medallion-tilt/) | 3D ring-and-mark medallion in dark sandblasted cast iron that tilts toward the pointer on a critically damped spring. Three.js module and demo, plus image, video and code prompts. |
+| [negative-space-mark-footer](components/negative-space-mark-footer/) | Two-colour footer band with an oversized monogram whose gutters form a star in negative space. React + SVG. |
 
 ## Conventions
 

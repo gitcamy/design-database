@@ -578,6 +578,67 @@
         "lights fixed while the object rotates so highlights travel across the grain"
       ],
       "notes": "Derived from a screen recording via the visual-to-prompt skill; the mark and all branding are not from the reference. Rest pose and cursor trigger are inferred. Glints follow the first DirectionalLight in the scene; the README template also has a path-traced route. Pass any THREE.Shape[] (e.g. from SVGLoader) as the mark."
+    },
+    {
+      "name": "negative-space-mark-footer",
+      "path": "components/negative-space-mark-footer",
+      "aliases": [
+        "bold footer",
+        "two colour footer band",
+        "negative space logo footer",
+        "giant monogram footer",
+        "cut-out mark footer"
+      ],
+      "summary": "Full-bleed footer band in two flat colours with an oversized monogram built from separate tiles, whose gutters open into a four pointed star in negative space. Wordmark, mark and tagline share one optical centreline; a utility row runs along the bottom. Stacks to a centred column on narrow screens.",
+      "tags": [
+        "footer",
+        "svg",
+        "logo",
+        "negative-space",
+        "monogram",
+        "two-colour",
+        "flat",
+        "brand",
+        "layout",
+        "responsive",
+        "no-build"
+      ],
+      "stack": [
+        "react",
+        "svg"
+      ],
+      "language": "jsx",
+      "dependencies": [],
+      "setup": [],
+      "files": [
+        {
+          "path": "NegativeSpaceMarkFooter.jsx",
+          "role": "component",
+          "dest": "components/NegativeSpaceMarkFooter.jsx"
+        },
+        {
+          "path": "demo.html",
+          "role": "demo"
+        },
+        {
+          "path": "README.md",
+          "role": "docs"
+        }
+      ],
+      "demo": {
+        "file": "demo.html",
+        "serve": "python3 -m http.server 8768",
+        "build_required": false
+      },
+      "ports": [],
+      "techniques": [
+        "the negative shape is never drawn: tiles turn large radii toward the middle and the leftover ground becomes the mark",
+        "gutters at roughly a tenth of the mark width, the band where tiles neither fuse into a blob nor scatter as separate shapes",
+        "one shared optical centreline at a fixed percentage down the band, with flanking elements at a symmetric offset, so three items read as one lockup",
+        "strict two colour rule extended to every element including icon discs, which are ink fill with the glyph knocked out in the ground colour",
+        "all sizes derived from a measured container width rather than viewport units, with floors, so the band holds proportion at any size"
+      ],
+      "notes": "Derived from a screenshot via the visual-to-prompt skill; the monogram geometry is authored fresh and the brand and copy are not from the source. No motion: the reference was static. tile() and dome() helpers inside the file build the paths. The README carries the reusable prompt template."
     }
   ]
 }
