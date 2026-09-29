@@ -639,6 +639,73 @@
         "all sizes derived from a measured container width rather than viewport units, with floors, so the band holds proportion at any size"
       ],
       "notes": "Derived from a screenshot via the visual-to-prompt skill; the monogram geometry is authored fresh and the brand and copy are not from the source. No motion: the reference was static. tile() and dome() helpers inside the file build the paths. The README carries the reusable prompt template."
+    },
+    {
+      "name": "pixel-character",
+      "path": "components/pixel-character",
+      "aliases": [
+        "dithered character",
+        "1-bit pixel character",
+        "pixel girl",
+        "bayer dither character",
+        "wave entrance character",
+        "pixel mascot"
+      ],
+      "summary": "A 1-bit dithered pixel character drawn live on a canvas, no video or sprite sheet. Pixels roll in from off-screen as a curling wave and crash into her shape, then she waves, takes a call, and types on a laptop, with a row-glitch between poses, and finally washes out to the upper right. One accent colour marks the prop in her hands.",
+      "tags": [
+        "canvas",
+        "pixel-art",
+        "dither",
+        "bayer",
+        "1-bit",
+        "character",
+        "mascot",
+        "hero",
+        "animation",
+        "loop",
+        "glitch",
+        "reduced-motion",
+        "no-build"
+      ],
+      "stack": [
+        "react",
+        "typescript",
+        "canvas"
+      ],
+      "language": "tsx",
+      "dependencies": [],
+      "setup": [
+        "Next.js App Router: add \"use client\" as the first line of the component"
+      ],
+      "files": [
+        {
+          "path": "PixelCharacter.tsx",
+          "role": "component",
+          "dest": "components/PixelCharacter.tsx"
+        },
+        {
+          "path": "demo.html",
+          "role": "demo"
+        },
+        {
+          "path": "README.md",
+          "role": "docs"
+        }
+      ],
+      "demo": {
+        "file": "demo.html",
+        "serve": "python3 -m http.server 8775",
+        "build_required": false
+      },
+      "ports": [],
+      "techniques": [
+        "draw with plain shapes and gradients into a tiny offscreen grayscale grid (96 x 112), then dither to 1-bit with a 4x4 Bayer matrix",
+        "mark the accent prop in pure green on the offscreen canvas so the dither pass can pick it out and repaint it flat in the accent colour",
+        "animate the dithered cells rather than the drawing: each cell travels its own eased, arcing path with hashed per-cell delays, so the figure forms from and dissolves into a wave",
+        "pose transitions via a short row-glitch: hashed rows shift horizontally with a decaying offset",
+        "SVG logomark rasterised to an 18 x 18 cell mask with isPointInPath"
+      ],
+      "notes": "Built for megamindlabs.ai: the laptop lid carries the Megamind Labs logomark (LOGO_D); swap the path or pass showLogo={false} for other brands. demo.html is a standalone JS port of the same drawing code, not an import of the TSX. Drawing state (reduced motion, showLogo, the 2D context) lives in module-level variables, so two instances on one page with different showLogo values can interfere. The README carries the reusable prompt template."
     }
   ]
 }

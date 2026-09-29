@@ -18,6 +18,7 @@ and a short README describing props and usage.
 | [lens-part-cta-reveal](components/lens-part-cta-reveal/) | Closing CTA revealed on scroll by two soft-lit ellipses that part like an opening lens, clipping and brightening the headline between them. React, no dependencies. |
 | [cast-iron-medallion-tilt](components/cast-iron-medallion-tilt/) | 3D ring-and-mark medallion in dark sandblasted cast iron that tilts toward the pointer on a critically damped spring. Three.js module and demo, plus image, video and code prompts. |
 | [negative-space-mark-footer](components/negative-space-mark-footer/) | Two-colour footer band with an oversized monogram whose gutters form a star in negative space. React + SVG. |
+| [pixel-character](components/pixel-character/) | 1-bit dithered pixel character drawn live on canvas that rolls in as a wave of pixels, waves, takes a call, and types, with one accent-coloured prop. React + TypeScript + canvas. |
 
 ## Conventions
 
