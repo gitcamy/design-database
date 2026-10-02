@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design Database</title>
+<meta name="description" content="Reusable interaction, motion and material studies for the web: React, canvas, SVG and Three.js components with live demos.">
+<meta property="og:title" content="Design Database">
+<meta property="og:description" content="Reusable interaction, motion and material studies for the web, with live demos.">
+<meta property="og:image" content="docs/previews/cast-iron-medallion-tilt.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f4f2ec;
+    --surface: #fbfaf6;
+    --ink: #1b1b19;
+    --muted: #6b6a63;
+    --line: #dedbd1;
+    --chip: #ebe8df;
+    --accent: #2f4fd8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #121211;
+      --surface: #1a1a18;
+      --ink: #ecebe5;
+      --muted: #9a998f;
+      --line: #2c2c29;
+      --chip: #242422;
+      --accent: #8ea2ff;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #121211; --surface: #1a1a18; --ink: #ecebe5; --muted: #9a998f;
+    --line: #2c2c29; --chip: #242422; --accent: #8ea2ff;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 400 15px/1.55 Inter, system-ui, sans-serif;
+  }
+  a { color: inherit; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px; }
+  @media (min-width: 720px) { .wrap { padding: 0 32px; } }
+
+  header { padding: 72px 0 40px; border-bottom: 1px solid var(--line); }
+  .eyebrow { font: 400 12px/1 "JetBrains Mono", ui-monospace, monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  h1 {
+    font: 400 clamp(44px, 8vw, 96px)/.95 Newsreader, Georgia, serif;
+    letter-spacing: -.02em; margin: 18px 0 22px;
+  }
+  h1 em { font-style: italic; }
+  .lede { max-width: 620px; font-size: 17px; color: var(--muted); margin: 0; }
+  .lede strong { color: var(--ink); font-weight: 500; }
+  .meta { display: flex; flex-wrap: wrap; gap: 10px 22px; margin-top: 28px; font-size: 14px; }
+  .meta a { text-decoration: none; border-bottom: 1px solid var(--line); padding-bottom: 2px; }
+  .meta a:hover { border-color: var(--ink); }
+
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; padding: 24px 0; }
+  .filters button {
+    font: inherit; font-size: 13px; color: var(--ink); background: transparent;
+    border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; cursor: pointer;
+  }
+  .filters button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+  .grid { display: grid; gap: 20px; grid-template-columns: 1fr; padding-bottom: 80px; }
+  @media (min-width: 720px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1080px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+    overflow: hidden; display: flex; flex-direction: column; min-width: 0;
+  }
+  .thumb { display: block; aspect-ratio: 16 / 10; background: var(--chip); overflow: hidden; }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .5s cubic-bezier(.2,.7,.2,1); }
+  .card:hover .thumb img { transform: scale(1.03); }
+  .body { padding: 18px 18px 20px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+  .num { font: 400 11px/1 "JetBrains Mono", monospace; color: var(--muted); }
+  h2 { font: 400 24px/1.15 Newsreader, Georgia, serif; margin: 0; overflow-wrap: anywhere; }
+  .summary { margin: 0; color: var(--muted); font-size: 14px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { font: 400 11px/1 "JetBrains Mono", monospace; background: var(--chip); border-radius: 6px; padding: 5px 7px; }
+  details { font-size: 13px; color: var(--muted); }
+  details summary { cursor: pointer; color: var(--ink); }
+  details ul { margin: 8px 0 0; padding-left: 18px; }
+  .actions { display: flex; gap: 16px; margin-top: auto; padding-top: 6px; font-size: 14px; font-weight: 500; }
+  .actions a { text-decoration: none; }
+  .actions a.primary { color: var(--accent); }
+  .actions a:hover { text-decoration: underline; }
+
+  footer { border-top: 1px solid var(--line); padding: 28px 0 48px; font-size: 13px; color: var(--muted); }
+  .empty { color: var(--muted); padding: 40px 0; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="eyebrow">Design Database · Open source</div>
+    <h1>Interaction &amp; <em>material</em> studies for the web.</h1>
+    <p class="lede">
+      Small, self-contained components, each with a <strong>live demo</strong>,
+      documented props and notes on the techniques that make it work.
+      React, canvas, SVG and Three.js. Copy one into a project, or read how it's built.
+    </p>
+    <div class="meta">
+      <a href="https://github.com/gitcamy/design-database">Source on GitHub →</a>
+      <a href="index.json">Machine-readable catalogue (index.json)</a>
+      <span id="count" class="eyebrow" style="align-self:center"></span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <nav class="filters" id="filters" aria-label="Filter by stack"></nav>
+  <section class="grid" id="grid" aria-live="polite"></section>
+</main>
+
+<footer>
+  <div class="wrap">
+    Built by <a href="https://github.com/gitcamy">Cameron Gordon</a>. MIT licensed.
+    The marquee component is from <a href="https://github.com/danielpetho/fancy">Fancy Components</a> by Daniel Petho, also MIT.
+  </div>
+</footer>
+
+<script>
+const REPO = "https://github.com/gitcamy/design-database/tree/main/";
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+let all = [], active = "all";
+
+function render() {
+  const grid = document.getElementById("grid");
+  const list = active === "all" ? all : all.filter((c) => (c.stack || []).includes(active));
+  grid.innerHTML = list.map((c) => {
+    const n = String(all.indexOf(c) + 1).padStart(2, "0");
+    const demo = c.demo && c.demo.file ? `${c.path}/${c.demo.file}` : null;
+    const techniques = (c.techniques || []).map((t) => `<li>${esc(t)}</li>`).join("");
+    return `<article class="card">
+      <a class="thumb" href="${esc(demo || REPO + c.path)}" aria-label="Open ${esc(c.name)} demo">
+        <img src="docs/previews/${esc(c.name)}.png" alt="" loading="lazy" onerror="this.remove()">
+      </a>
+      <div class="body">
+        <span class="num">${n}</span>
+        <h2>${esc(c.name)}</h2>
+        <p class="summary">${esc(c.summary)}</p>
+        <div class="chips">${(c.stack || []).map((s) => `<span class="chip">${esc(s)}</span>`).join("")}</div>
+        ${techniques ? `<details><summary>How it works</summary><ul>${techniques}</ul></details>` : ""}
+        <div class="actions">
+          ${demo ? `<a class="primary" href="${esc(demo)}">Live demo →</a>` : ""}
+          <a href="${esc(REPO + c.path)}">Source</a>
+        </div>
+      </div>
+    </article>`;
+  }).join("") || `<p class="empty">Nothing here yet.</p>`;
+}
+
+function renderFilters() {
+  const stacks = [...new Set(all.flatMap((c) => c.stack || []))].sort();
+  const el = document.getElementById("filters");
+  el.innerHTML = ["all", ...stacks].map((s) =>
+    `<button type="button" data-s="${esc(s)}" aria-pressed="${s === active}">${s === "all" ? "All" : esc(s)}</button>`).join("");
+  el.onclick = (e) => {
+    const b = e.target.closest("button"); if (!b) return;
+    active = b.dataset.s; renderFilters(); render();
+  };
+}
+
+fetch("index.json")
+  .then((r) => r.json())
+  .then((d) => {
+    all = d.components || [];
+    document.getElementById("count").textContent = `${all.length} components`;
+    renderFilters(); render();
+  })
+  .catch(() => {
+    document.getElementById("grid").innerHTML =
+      `<p class="empty">Couldn't load the catalogue. Browse the <a href="${REPO}components">components folder</a> instead.</p>`;
+  });
+</script>
+</body>
+</html>

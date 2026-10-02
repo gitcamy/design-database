@@ -1,4 +1,6 @@
-// Framer code component port of marquee-along-svg-path.
+// Framer code component port of marquee-along-svg-path, which is
+// MarqueeAlongSvgPath from Fancy Components by Daniel Petho (MIT,
+// https://github.com/danielpetho/fancy). See ../LICENSE.
 // No Tailwind or `cn`: styles are inline. Uses Framer's bundled framer-motion.
 // Per-item hooks live in <PathItem> so item count can change from the
 // property panel without breaking the rules of hooks.

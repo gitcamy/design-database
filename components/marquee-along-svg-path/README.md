@@ -5,6 +5,11 @@ A marquee that moves its children along an arbitrary SVG path using CSS
 coupling, direction flipping, rolling z-index, and responsive scaling.
 React + TypeScript + Tailwind + [motion](https://motion.dev).
 
+The component is [MarqueeAlongSvgPath](https://www.fancycomponents.dev/docs/components/blocks/marquee-along-svg-path)
+from Daniel Petho's [Fancy Components](https://github.com/danielpetho/fancy),
+included unmodified under its MIT license (see [`LICENSE`](LICENSE)). This
+folder adds the setup notes, the no-build demo and the Framer port.
+
 ## Files
 
 | File | Purpose |
