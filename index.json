@@ -13,7 +13,7 @@
         "cursor light footer",
         "megamind footer"
       ],
-      "summary": "Footer that renders a phrase as a fixed grid of monospaced glyphs on a canvas. Letterforms read only through character density; the cursor acts as a soft point light that darkens glyphs within a radius and dissolves them far away. Nothing moves, only the character in each cell changes.",
+      "summary": "Footer that renders a wordmark as a fixed grid of monospaced glyphs on a canvas. Letterforms read only through character density; the cursor acts as a soft point light that darkens glyphs within a radius and dissolves them far away. Nothing moves, only the character in each cell changes.",
       "tags": [
         "footer",
         "canvas",
