@@ -29,7 +29,7 @@ Click any preview to open its live demo.
 
 <table>
 <tr>
-<td width="50%" valign="top"><b><a href="components/ascii-footer/">ascii-footer</a></b> · <a href="https://gitcamy.github.io/design-database/components/ascii-footer/demo.html">demo</a><br><sub>Footer that renders a wordmark as an ASCII glyph grid with a cursor-reactive point light. React + canvas.</sub></td>
+<td width="50%" valign="top"><b><a href="components/ascii-interactive-logo/">ascii-interactive-logo</a></b> · <a href="https://gitcamy.github.io/design-database/components/ascii-interactive-logo/demo.html">demo</a><br><sub>Footer that renders a wordmark as an ASCII glyph grid with a cursor-reactive point light. React + canvas.</sub></td>
 <td width="50%" valign="top"><a href="https://gitcamy.github.io/design-database/components/marquee-along-svg-path/demo.html"><img src="docs/previews/marquee-along-svg-path.png" alt="marquee-along-svg-path preview"></a><br><b><a href="components/marquee-along-svg-path/">marquee-along-svg-path</a></b><br><sub>Marquee that moves items along any SVG path, with drag, hover slowdown, and scroll coupling. React + TypeScript + Tailwind + motion.</sub></td>
 </tr>
 <tr>

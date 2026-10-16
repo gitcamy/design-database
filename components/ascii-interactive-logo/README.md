@@ -1,4 +1,4 @@
-# ascii-footer
+# ascii-interactive-logo
 
 A React footer that renders a wordmark (default: the Megamind Labs logo, as
 SVG paths) as a fixed grid of monospaced glyphs on a `<canvas>`. Letterforms
@@ -10,11 +10,11 @@ cell changes.
 ## Usage
 
 ```jsx
-import AsciiFooter, { MLWORDMARK } from "./AsciiFooter";
+import AsciiInteractiveLogo, { MLWORDMARK } from "./AsciiInteractiveLogo";
 
-<AsciiFooter />
+<AsciiInteractiveLogo />
 
-<AsciiFooter
+<AsciiInteractiveLogo
   shape={MLWORDMARK}
   phrase="Megamind Labs"
   ramp=" .:;i/|+*#"

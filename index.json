@@ -5,8 +5,8 @@
   "local_path": "/Users/Cam/dev/design-database",
   "components": [
     {
-      "name": "ascii-footer",
-      "path": "components/ascii-footer",
+      "name": "ascii-interactive-logo",
+      "path": "components/ascii-interactive-logo",
       "aliases": [
         "ascii wordmark",
         "ascii grid footer",
@@ -34,9 +34,9 @@
       "setup": [],
       "files": [
         {
-          "path": "AsciiFooter.jsx",
+          "path": "AsciiInteractiveLogo.jsx",
           "role": "component",
-          "dest": "components/AsciiFooter.jsx"
+          "dest": "components/AsciiInteractiveLogo.jsx"
         },
         {
           "path": "demo.html",

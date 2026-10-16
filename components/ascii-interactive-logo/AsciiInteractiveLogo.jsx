@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 
 /**
- * AsciiFooter
+ * AsciiInteractiveLogo
  *
  * Renders a wordmark (default: the Megamind Labs logo, as SVG paths) as a
  * fixed grid of monospaced glyphs on a <canvas>. Letterforms are readable
@@ -76,7 +76,7 @@ export const MLWORDMARK = {
   ],
 };
 
-export default function AsciiFooter({
+export default function AsciiInteractiveLogo({
   shape = MLWORDMARK,
   phrase = "Megamind Labs",
   ramp = DEFAULT_RAMP,

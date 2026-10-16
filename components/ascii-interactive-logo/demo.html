@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>AsciiFooter demo</title>
+<title>AsciiInteractiveLogo demo</title>
 <style>
   html, body { margin: 0; background: #F2F1EC; }
   main { min-height: 40vh; }
@@ -19,7 +19,7 @@
 <script type="text/babel" data-presets="react">
 const { useEffect, useRef } = React;
 /**
- * AsciiFooter
+ * AsciiInteractiveLogo
  *
  * Renders a wordmark (default: the Megamind Labs logo, as SVG paths) as a
  * fixed grid of monospaced glyphs on a <canvas>. Letterforms are readable
@@ -94,7 +94,7 @@ const MLWORDMARK = {
   ],
 };
 
-function AsciiFooter({
+function AsciiInteractiveLogo({
   shape = MLWORDMARK,
   phrase = "Megamind Labs",
   ramp = DEFAULT_RAMP,
@@ -326,7 +326,7 @@ const params = new URLSearchParams(location.search);
 const cw = Number(params.get("cw")) || undefined;
 const ch = Number(params.get("ch")) || undefined;
 const r = Number(params.get("r")) || undefined;
-ReactDOM.createRoot(document.getElementById("root")).render(<AsciiFooter cellWidth={cw} cellHeight={ch} radius={r} />);
+ReactDOM.createRoot(document.getElementById("root")).render(<AsciiInteractiveLogo cellWidth={cw} cellHeight={ch} radius={r} />);
 </script>
 </body>
 </html>
