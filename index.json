@@ -639,6 +639,63 @@
         "all sizes derived from a measured container width rather than viewport units, with floors, so the band holds proportion at any size"
       ],
       "notes": "Derived from a screenshot via the visual-to-prompt skill; the monogram geometry is authored fresh and the brand and copy are not from the source. No motion: the reference was static. tile() and dome() helpers inside the file build the paths. The README carries the reusable prompt template."
+    },
+    {
+      "name": "infinite-media-corridor",
+      "path": "components/infinite-media-corridor",
+      "aliases": [
+        "infinite video carousel",
+        "infinite image carousel",
+        "media tunnel",
+        "curved media walls",
+        "video corridor"
+      ],
+      "summary": "Endless image and video carousel. Cards leave a dark strip at the vanishing point, split left and right, and sweep outward on two curved walls, each card about 1.5x taller than the last and turned further away. Videos play muted and pause off screen.",
+      "tags": [
+        "carousel",
+        "video",
+        "image",
+        "infinite",
+        "marquee",
+        "perspective",
+        "matrix3d",
+        "hero",
+        "no-build"
+      ],
+      "stack": [
+        "react"
+      ],
+      "language": "jsx",
+      "dependencies": [],
+      "setup": [],
+      "files": [
+        {
+          "path": "InfiniteMediaCorridor.jsx",
+          "role": "component",
+          "dest": "components/InfiniteMediaCorridor.jsx"
+        },
+        {
+          "path": "demo.html",
+          "role": "demo"
+        },
+        {
+          "path": "README.md",
+          "role": "docs"
+        }
+      ],
+      "demo": {
+        "file": "demo.html",
+        "serve": "python3 -m http.server 8779",
+        "build_required": false
+      },
+      "ports": [],
+      "techniques": [
+        "geometric height growth per slot plus exponential foreshortening, integrated into a lookup table for screen x",
+        "rect-to-trapezoid homography via matrix3d so cards are perspective-correct and share edges",
+        "looping slots whose cycle number picks the media, so React re-renders only on swaps",
+        "videos played/paused on visibility transitions; rAF loop stops off screen and under reduced motion"
+      ],
+      "notes": "Derived from a screen recording via the visual-to-prompt skill. The hero around it was intentionally skipped. No preview PNG yet."
     }
   ]
 }

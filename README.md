@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <img alt="10 components" src="https://img.shields.io/badge/components-10-1b1b19">
+  <img alt="11 components" src="https://img.shields.io/badge/components-11-1b1b19">
   <img alt="React" src="https://img.shields.io/badge/React-18-1b1b19">
   <img alt="Three.js" src="https://img.shields.io/badge/Three.js-r169-1b1b19">
   <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-1b1b19">
@@ -47,6 +47,10 @@ Click any preview to open its live demo.
 <tr>
 <td width="50%" valign="top"><a href="https://gitcamy.github.io/design-database/components/cast-iron-medallion-tilt/demo.html"><img src="docs/previews/cast-iron-medallion-tilt.png" alt="cast-iron-medallion-tilt preview"></a><br><b><a href="components/cast-iron-medallion-tilt/">cast-iron-medallion-tilt</a></b><br><sub>3D ring-and-mark medallion in dark sandblasted cast iron that tilts toward the pointer on a critically damped spring. Three.js module and demo, plus image, video and code prompts.</sub></td>
 <td width="50%" valign="top"><a href="https://gitcamy.github.io/design-database/components/negative-space-mark-footer/demo.html"><img src="docs/previews/negative-space-mark-footer.png" alt="negative-space-mark-footer preview"></a><br><b><a href="components/negative-space-mark-footer/">negative-space-mark-footer</a></b><br><sub>Two-colour footer band with an oversized monogram whose gutters form a star in negative space. React + SVG.</sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><b><a href="components/infinite-media-corridor/">infinite-media-corridor</a></b> · <a href="https://gitcamy.github.io/design-database/components/infinite-media-corridor/demo.html">demo</a><br><sub>Endless image and video carousel that streams out of a centre strip onto two curved walls. React, no dependencies.</sub></td>
+<td width="50%" valign="top"></td>
 </tr>
 </table>
 

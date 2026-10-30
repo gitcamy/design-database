@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>infinite-media-corridor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+<script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+  html, body { margin: 0; font: 400 16px/1.5 Inter, "Helvetica Neue", Arial, sans-serif; color: #1B1B19; }
+  body {
+    background-color: #E5E5E2;
+    background-image: radial-gradient(#0000001a 1px, transparent 1.2px);
+    background-size: 18px 18px;
+  }
+  h1 { margin: 40px 0 0; text-align: center; font: 400 clamp(30px, 4.4vw, 60px)/1.05 Newsreader, Georgia, serif; letter-spacing: -0.02em; }
+  .below { text-align: center; padding: 8px 20px 96px; color: #55534E; }
+  .bar {
+    position: fixed; z-index: 60; left: 50%; bottom: 18px; transform: translateX(-50%);
+    display: flex; gap: 8px; font: 11px/1 "SF Mono", ui-monospace, Menlo, monospace;
+  }
+  .bar button {
+    font: inherit; text-transform: uppercase; letter-spacing: 0.12em; padding: 9px 14px;
+    border-radius: 999px; border: 1px solid #1E1E1C22; background: #fff; color: #1E1E1C; cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<h1>Placeholder headline</h1>
+<div id="corridor"></div>
+<p class="below">Images and muted looping video, streamed endlessly from the seam at the back.</p>
+<div class="bar"><button id="pause">Pause</button><button id="dir">Direction: in</button></div>
+<script>
+// The demo transpiles InfiniteMediaCorridor.jsx in the browser so there is one
+// source of truth. Serve this folder over http, a file:// open will fail on fetch.
+(async () => {
+  const src = await (await fetch("./InfiniteMediaCorridor.jsx")).text();
+  const body = src
+    .replace(/^import[\s\S]*?from "react";\n/m, "")
+    .replace("export default function", "function");
+  const code = Babel.transform(body, { presets: [["react", { runtime: "classic" }]] }).code;
+  const InfiniteMediaCorridor = new Function(
+    "React", "useEffect", "useLayoutEffect", "useRef", "useState",
+    code + "; return InfiniteMediaCorridor;"
+  )(React, React.useEffect, React.useLayoutEffect, React.useRef, React.useState);
+
+  // Stock photos from picsum.photos and two CC0 clips from MDN, as stand-ins.
+  const photos = Array.from({ length: 22 }, (_, i) => `https://picsum.photos/seed/corridor${i}/480/480`);
+  const videos = [
+    "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
+    "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/friday.mp4",
+  ];
+  const items = [];
+  photos.forEach((p, i) => {
+    items.push(p);
+    if (i % 5 === 2) items.push(videos[(i / 5) | 0 ? 1 : 0]);
+  });
+
+  let paused = false;
+  let direction = 1;
+  const root = ReactDOM.createRoot(document.getElementById("corridor"));
+  const render = () => {
+    document.getElementById("pause").textContent = paused ? "Play" : "Pause";
+    document.getElementById("dir").textContent = "Direction: " + (direction > 0 ? "in" : "out");
+    root.render(React.createElement(InfiniteMediaCorridor, { items, paused, direction }));
+  };
+  document.getElementById("pause").onclick = () => { paused = !paused; render(); };
+  document.getElementById("dir").onclick = () => { direction = -direction; render(); };
+  render();
+})();
+</script>
+</body>
+</html>
