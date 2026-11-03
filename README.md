@@ -50,7 +50,7 @@ Click any preview to open its live demo.
 </tr>
 <tr>
 <td width="50%" valign="top"><b><a href="components/infinite-media-corridor/">infinite-media-corridor</a></b> · <a href="https://gitcamy.github.io/design-database/components/infinite-media-corridor/demo.html">demo</a><br><sub>Endless image and video carousel that streams out of a centre strip onto two curved walls. React, no dependencies.</sub></td>
-<td width="50%" valign="top"></td>
+<td width="50%" valign="top"><b><a href="components/embossed-wordmark-light-footer/">embossed-wordmark-light-footer</a></b> · <a href="https://gitcamy.github.io/design-database/components/embossed-wordmark-light-footer/demo.html">demo</a><br><sub>Footer with a stacked wordmark pressed into a grained plate, lit by a cursor glow that is masked to the letter faces. React + SVG.</sub></td>
 </tr>
 </table>
 
