@@ -696,6 +696,64 @@
         "videos played/paused on visibility transitions; rAF loop stops off screen and under reduced motion"
       ],
       "notes": "Derived from a screen recording via the visual-to-prompt skill. The hero around it was intentionally skipped. No preview PNG yet."
+    },
+    {
+      "name": "embossed-wordmark-light-footer",
+      "path": "components/embossed-wordmark-light-footer",
+      "aliases": [
+        "stacked wordmark footer",
+        "embossed footer",
+        "debossed logo footer",
+        "cursor glow letters",
+        "megamind stacked footer"
+      ],
+      "summary": "Footer with a stacked wordmark (mega / mind / labs) pressed into a pale grained plate. The cursor lights the letter faces with a white, cyan and periwinkle glow that is masked to the glyphs, so it never touches the plate. Nothing moves; only the colour of the faces changes.",
+      "tags": [
+        "footer",
+        "svg",
+        "typography",
+        "embossed",
+        "cursor-reactive",
+        "pointer-light",
+        "wordmark",
+        "iridescent",
+        "no-build"
+      ],
+      "stack": [
+        "react",
+        "svg"
+      ],
+      "language": "jsx",
+      "dependencies": [],
+      "setup": [],
+      "files": [
+        {
+          "path": "EmbossedWordmarkLightFooter.jsx",
+          "role": "component",
+          "dest": "components/EmbossedWordmarkLightFooter.jsx"
+        },
+        {
+          "path": "demo.html",
+          "role": "demo"
+        },
+        {
+          "path": "README.md",
+          "role": "docs"
+        }
+      ],
+      "demo": {
+        "file": "demo.html",
+        "serve": "python3 -m http.server 8790",
+        "build_required": false
+      },
+      "ports": [],
+      "techniques": [
+        "glyphs as stroked paths in one defs group, reused as faces, glow mask and filter source",
+        "single SVG filter builds the recess: offset white lip, face, inverted-alpha inner shadow",
+        "radial gradient clipped to the glyph mask, centre rewritten on pointermove with no re-render",
+        "grain tile from feTurbulence multiplied over plate, letters and glow"
+      ],
+      "notes": "Derived from a screen recording via the visual-to-prompt skill. Letterforms authored fresh, brand and copy not from the source. Glow radius, rim colour and fade time are estimates. No preview PNG yet."
     }
   ]
 }
