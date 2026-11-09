@@ -754,6 +754,67 @@
         "grain tile from feTurbulence multiplied over plate, letters and glow"
       ],
       "notes": "Derived from a screen recording via the visual-to-prompt skill. Letterforms authored fresh, brand and copy not from the source. Glow radius, rim colour and fade time are estimates. No preview PNG yet."
+    },
+    {
+      "name": "depth-field-card-drift",
+      "path": "components/depth-field-card-drift",
+      "aliases": [
+        "depth of field cards",
+        "floating photo cards",
+        "3d card field",
+        "scroll depth hero",
+        "blurred floating images",
+        "cards receding on scroll"
+      ],
+      "summary": "Scroll-driven hero backdrop: photo and UI cards float in CSS 3D depth, each turned so its inner edge leans away. Scrolling pushes every card away from the viewer; cards are sharp only near a focus plane and blur on both sides of it, then fade into the background. Depth wraps so the field never empties. The overlay receives scroll progress as --p for staggered headline fades.",
+      "tags": [
+        "hero",
+        "scroll",
+        "3d",
+        "perspective",
+        "depth-of-field",
+        "blur",
+        "image",
+        "video",
+        "cards",
+        "parallax",
+        "no-build"
+      ],
+      "stack": [
+        "react"
+      ],
+      "language": "jsx",
+      "dependencies": [],
+      "setup": [],
+      "files": [
+        {
+          "path": "DepthFieldCardDrift.jsx",
+          "role": "component",
+          "dest": "components/DepthFieldCardDrift.jsx"
+        },
+        {
+          "path": "demo.html",
+          "role": "demo"
+        },
+        {
+          "path": "README.md",
+          "role": "docs"
+        }
+      ],
+      "demo": {
+        "file": "demo.html",
+        "serve": "python3 -m http.server 8781",
+        "build_required": false
+      },
+      "ports": [],
+      "techniques": [
+        "sticky preserve-3d scene where scroll changes only z, so perspective produces the drift and shrink",
+        "wrapped z with fade-in after the wrap and fade-out at the far end",
+        "depth-of-field blur from distance to a focus plane, scaled by (perspective - z)/perspective to undo projection shrink",
+        "3D view isolated and contained so the overlay always paints on top",
+        "scroll progress exposed as a CSS variable for overlay choreography"
+      ],
+      "notes": "Derived from a screen recording via the visual-to-prompt skill. Source brand, copy, photography and UI card content were not carried over."
     }
   ]
 }

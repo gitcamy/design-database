@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>depth-field-card-drift</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Newsreader:opsz,wght@6..72,400&display=swap" rel="stylesheet" />
+<script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.26.4/babel.min.js"></script>
+<style>
+  html, body { margin: 0; background: #F1EFE9; color: #15292B; font: 400 16px/1.5 Inter, "Helvetica Neue", Arial, sans-serif; }
+  .hero { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 24px; }
+  .hero h1 { margin: 0; font: 400 clamp(36px, 6.4vw, 104px)/1.12 Inter, "Helvetica Neue", Arial, sans-serif; letter-spacing: -0.015em; }
+  .hero h1 span { display: block; }
+  /* Headline lines dim one after the other as the field pulls back (--p is 0 to 1). */
+  .hero h1 span:nth-child(1) { opacity: clamp(0, calc(1 - (var(--p) - 0.30) * 7), 1); }
+  .hero h1 span:nth-child(2) { opacity: clamp(0, calc(1 - (var(--p) - 0.38) * 6), 1); }
+  .hero p { max-width: 34em; margin: 56px 0 0; font-size: clamp(14px, 1.3vw, 19px); opacity: clamp(0, calc(1 - (var(--p) - 0.46) * 6), 1); }
+  .hero a {
+    margin-top: 24px; padding: 12px 26px; border-radius: 999px; background: #163234; color: #F1EFE9;
+    text-decoration: none; font-size: 15px; opacity: clamp(0, calc(1 - (var(--p) - 0.5) * 6), 1);
+  }
+  .next { padding: 18vh 12vw 28vh; font: 400 clamp(28px, 3.4vw, 52px)/1.15 Newsreader, Georgia, serif; }
+  .next span { display: block; padding-left: 3.4em; }
+  /* Small UI cards mixed in with the photos. */
+  .ui { padding: 0.9em 1em 1em; font: 500 0.82em/1.3 Inter, sans-serif; color: #15292B; }
+  .ui small { display: block; color: #8a8f8c; font-weight: 400; margin-bottom: 6px; }
+  .ui b { display: block; font-size: 26px; font-weight: 500; }
+  .ui .dots { display: flex; gap: 4px; margin-top: 10px; }
+  .ui .dots i { width: 18px; height: 18px; border-radius: 50%; background: #dfe8e2; }
+  .ui .dots i:nth-child(2) { background: #e6e0f0; } .ui .dots i:nth-child(3) { background: #f1e1e4; } .ui .dots i:nth-child(4) { background: #dbe6f3; }
+  .ui .lines i { display: block; height: 5px; border-radius: 3px; background: #e9e8e4; margin-top: 6px; }
+  .ui .thumb { height: 64px; border-radius: 8px; margin-top: 10px; background: linear-gradient(160deg, #cfdccf, #8fa98e); }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<section class="next">Most good ideas arrive<span>while you are doing something else.</span></section>
+<script>
+// The demo transpiles DepthFieldCardDrift.jsx in the browser so there is one
+// source of truth. Serve the repo over http, a file:// open will fail on fetch.
+(async () => {
+  const src = await (await fetch("./DepthFieldCardDrift.jsx")).text();
+  const body = src
+    .replace(/^import[\s\S]*?from "react";\n/m, "")
+    .replace("export default function", "function");
+  const code = Babel.transform(body, { presets: [["react", { runtime: "classic" }]] }).code;
+  const DepthFieldCardDrift = new Function(
+    "React", "useEffect", "useLayoutEffect", "useMemo", "useRef",
+    code + "; return DepthFieldCardDrift;"
+  )(React, React.useEffect, React.useLayoutEffect, React.useMemo, React.useRef);
+
+  const h = React.createElement;
+  const ui = [
+    { node: h("div", { className: "ui" }, h("b", null, "4"), h("small", null, "Weekly digests"), h("div", { className: "dots" }, h("i"), h("i"), h("i"), h("i"))) },
+    { node: h("div", { className: "ui" }, h("small", null, "Slides"), "Megamind Labs Field Notes 2026", h("div", { className: "thumb" })) },
+    { node: h("div", { className: "ui" }, "All notes →", h("div", { className: "lines" }, h("i"), h("i", { style: { width: "80%" } }), h("i"), h("i", { style: { width: "60%" } }))) },
+  ];
+  // Stock photos from picsum.photos as stand-ins, plus one CC0 clip from MDN.
+  const photos = Array.from({ length: 16 }, (_, i) => `https://picsum.photos/seed/depthfield${i}/400/560`);
+  const items = [];
+  photos.forEach((p, i) => {
+    items.push(p);
+    if (i % 5 === 2 && i < 15) items.push(ui[(i / 5) | 0]);
+  });
+  items.splice(7, 0, "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4");
+
+  ReactDOM.createRoot(document.getElementById("app")).render(
+    h(DepthFieldCardDrift, { items },
+      h("div", { className: "hero" },
+        h("h1", null, h("span", null, "Quiet software. Close at hand."), h("span", null, "Out of the way.")),
+        h("p", null, "Megamind Labs builds tools that notice what you are working on, keep what matters within reach, and step aside when you do not need them."),
+        h("a", { href: "#" }, "Try Megamind Labs")
+      )
+    )
+  );
+  // demo.html#p=0.4 opens partway through the scroll, for previews.
+  const m = location.hash.match(/p=([\d.]+)/);
+  if (m) setTimeout(() => {
+    const el = document.querySelector(".dfcd");
+    scrollTo({ top: (el.offsetHeight - innerHeight) * parseFloat(m[1]), behavior: "instant" });
+  }, 300);
+})();
+</script>
+</body>
+</html>
