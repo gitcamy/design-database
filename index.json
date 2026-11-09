@@ -695,7 +695,7 @@
         "looping slots whose cycle number picks the media, so React re-renders only on swaps",
         "videos played/paused on visibility transitions; rAF loop stops off screen and under reduced motion"
       ],
-      "notes": "Derived from a screen recording via the visual-to-prompt skill. The hero around it was intentionally skipped. No preview PNG yet."
+      "notes": "Derived from a screen recording via the visual-to-prompt skill. The hero around it was intentionally skipped."
     },
     {
       "name": "embossed-wordmark-light-footer",
@@ -753,7 +753,7 @@
         "radial gradient clipped to the glyph mask, centre rewritten on pointermove with no re-render",
         "grain tile from feTurbulence multiplied over plate, letters and glow"
       ],
-      "notes": "Derived from a screen recording via the visual-to-prompt skill. Letterforms authored fresh, brand and copy not from the source. Glow radius, rim colour and fade time are estimates. No preview PNG yet."
+      "notes": "Derived from a screen recording via the visual-to-prompt skill. Letterforms authored fresh, brand and copy not from the source. Glow radius, rim colour and fade time are estimates."
     },
     {
       "name": "depth-field-card-drift",
