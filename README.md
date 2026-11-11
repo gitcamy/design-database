@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <img alt="14 components" src="https://img.shields.io/badge/components-14-1b1b19">
+  <img alt="15 components" src="https://img.shields.io/badge/components-15-1b1b19">
   <img alt="React" src="https://img.shields.io/badge/React-18-1b1b19">
   <img alt="Three.js" src="https://img.shields.io/badge/Three.js-r169-1b1b19">
   <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-1b1b19">
@@ -49,12 +49,16 @@ Click any preview to open its live demo.
 <td width="50%" valign="top"><a href="https://gitcamy.github.io/design-database/components/negative-space-mark-footer/demo.html"><img src="docs/previews/negative-space-mark-footer.png" alt="negative-space-mark-footer preview"></a><br><b><a href="components/negative-space-mark-footer/">negative-space-mark-footer</a></b><br><sub>Two-colour footer band with an oversized monogram whose gutters form a star in negative space. React + SVG.</sub></td>
 </tr>
 <tr>
-<td width="50%" valign="top"><b><a href="components/infinite-media-corridor/">infinite-media-corridor</a></b> · <a href="https://gitcamy.github.io/design-database/components/infinite-media-corridor/demo.html">demo</a><br><sub>Endless image and video carousel that streams out of a centre strip onto two curved walls. React, no dependencies.</sub></td>
-<td width="50%" valign="top"><b><a href="components/embossed-wordmark-light-footer/">embossed-wordmark-light-footer</a></b> · <a href="https://gitcamy.github.io/design-database/components/embossed-wordmark-light-footer/demo.html">demo</a><br><sub>Footer with a stacked wordmark pressed into a grained plate, lit by a cursor glow that is masked to the letter faces. React + SVG.</sub></td>
+<td width="50%" valign="top"><a href="https://gitcamy.github.io/design-database/components/infinite-media-corridor/demo.html"><img src="docs/previews/infinite-media-corridor.png" alt="infinite-media-corridor preview"></a><br><b><a href="components/infinite-media-corridor/">infinite-media-corridor</a></b><br><sub>Endless image and video carousel that streams out of a centre strip onto two curved walls. React, no dependencies.</sub></td>
+<td width="50%" valign="top"><a href="https://gitcamy.github.io/design-database/components/embossed-wordmark-light-footer/demo.html"><img src="docs/previews/embossed-wordmark-light-footer.png" alt="embossed-wordmark-light-footer preview"></a><br><b><a href="components/embossed-wordmark-light-footer/">embossed-wordmark-light-footer</a></b><br><sub>Footer with a stacked wordmark pressed into a grained plate, lit by a cursor glow that is masked to the letter faces. React + SVG.</sub></td>
 </tr>
 <tr>
 <td width="50%" valign="top"><a href="https://gitcamy.github.io/design-database/components/depth-field-card-drift/demo.html"><img src="docs/previews/depth-field-card-drift.png" alt="depth-field-card-drift preview"></a><br><b><a href="components/depth-field-card-drift/">depth-field-card-drift</a></b><br><sub>Photo and UI cards floating in 3D depth behind a hero, receding on scroll through a shallow depth of field. React, no dependencies.</sub></td>
+<td width="50%" valign="top"><a href="https://gitcamy.github.io/design-database/components/false-color-stipple-illustration/demo.html"><img src="docs/previews/false-color-stipple-illustration.png" alt="false-color-stipple-illustration preview"></a><br><b><a href="components/false-color-stipple-illustration/">false-color-stipple-illustration</a></b><br><sub>Illustration treatment that turns any photo into flat neon false-color tones shaded by single-pixel grain, with frayed edges. React + WebGL, plus an image-model prompt.</sub></td>
+</tr>
+<tr>
 <td width="50%" valign="top"><b><a href="components/ascii-model-hover-cards/">ascii-model-hover-cards</a></b> · <a href="https://gitcamy.github.io/design-database/components/ascii-model-hover-cards/demo.html">demo</a><br><sub>Cards with 3D objects rendered live as tinted ASCII that start turning on hover, while the bracketed CTA fills. React + Three.js.</sub></td>
+<td width="50%" valign="top"></td>
 </tr>
 </table>
 
@@ -90,7 +94,8 @@ components without walking the folders.
   dependencies, file destinations, and the techniques worth reusing. Tools
   read it instead of walking the folders, so a component missing from it is
   effectively invisible.
-- Add a 1280×800 preview to `docs/previews/<name>.png`.
+- Previews (`docs/previews/<name>.png`, 1280×800) are captured from each demo by the
+  Previews workflow when a component lands on `main`. To make one locally: `npm i && npm run previews`.
 
 ## Credits
 
