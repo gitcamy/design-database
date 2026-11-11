@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>false-color-stipple-illustration</title>
+<script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.26.4/babel.min.js"></script>
+<style>
+  html, body { margin: 0; height: 100%; background: #EEEAE7; color: #24261E; font: 400 13px/1.4 "Helvetica Neue", Arial, sans-serif; }
+  #app { position: fixed; inset: 0; }
+  .panel {
+    position: fixed; left: 16px; bottom: 16px; display: grid; grid-template-columns: auto 140px; gap: 6px 12px; align-items: center;
+    padding: 12px 14px; background: rgba(238, 234, 231, 0.92); border-radius: 10px; max-width: calc(100vw - 60px);
+  }
+  .panel h1 { grid-column: 1 / -1; margin: 0 0 4px; font-size: 13px; font-weight: 600; }
+  .panel input[type=range] { width: 140px; }
+  .panel button, .panel label.file { grid-column: 1 / -1; font: inherit; cursor: pointer; }
+  .panel label.file input { display: none; }
+  .panel label.file { text-decoration: underline; }
+  body.clean .panel { display: none; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+// A procedural stand-in photo (lake valley, conifers, sail), drawn on a 2D
+// canvas so the demo needs no image. Load your own photo from the panel.
+function sceneDataURL(W = 1600, H = 1000) {
+  const c = document.createElement("canvas"); c.width = W; c.height = H;
+  const g = c.getContext("2d");
+  let s = 11; const rnd = () => ((s = (s * 16807) % 2147483647) / 2147483647);
+  const sky = g.createLinearGradient(0, 0, 0, H * 0.5);
+  sky.addColorStop(0, "#e6e7e8"); sky.addColorStop(1, "#d9dcdd");
+  g.fillStyle = sky; g.fillRect(0, 0, W, H);
+  const ridge = (pts, color) => { g.beginPath(); g.moveTo(pts[0][0], pts[0][1]); pts.forEach(p => g.lineTo(p[0], p[1])); g.closePath(); g.fillStyle = color; g.fill(); };
+  // Shadowed hills, left and right, meeting in a V.
+  ridge([[0, H], [0, 40], [200, 60], [480, 150], [720, 330], [880, 470], [960, 560], [960, H]], "#25321f");
+  ridge([[W, H], [W, 20], [1450, 90], [1250, 230], [1080, 420], [960, 560], [900, H]], "#1f2a1c");
+  // Sunlit slope on the left.
+  const lit = g.createLinearGradient(0, 640, 900, 860);
+  lit.addColorStop(0, "#6fb04a"); lit.addColorStop(0.7, "#8cc25a"); lit.addColorStop(1, "#a9b456");
+  ridge([[0, H], [0, 560], [400, 620], [800, 700], [1150, 800], [1150, H]], "#6fa646");
+  g.fillStyle = lit; g.fill();
+  // Warm band where light meets shadow.
+  g.fillStyle = "rgba(205, 175, 80, 0.75)";
+  g.beginPath(); g.moveTo(0, 720); g.bezierCurveTo(300, 690, 700, 760, 1150, 805); g.lineTo(1150, 830); g.bezierCurveTo(700, 790, 300, 730, 0, 760); g.fill();
+  // Conifers.
+  for (let i = 0; i < 70; i++) {
+    const x = rnd() * 980 - 40, base = 560 + x * 0.17 + rnd() * 70, h = 160 + rnd() * 160, w = h * 0.34;
+    g.fillStyle = "#3a2c22"; g.fillRect(x - 3, base - 10, 6, 60);
+    const t = rnd();
+    g.fillStyle = t < 0.5 ? "#3f7d32" : t < 0.8 ? "#4f9440" : "#2f6428";
+    g.beginPath(); g.moveTo(x, base - h); g.lineTo(x - w, base); g.lineTo(x + w, base); g.closePath(); g.fill();
+  }
+  // Lake.
+  const lake = g.createLinearGradient(0, 860, 0, H);
+  lake.addColorStop(0, "#4a8aa6"); lake.addColorStop(1, "#3e7590");
+  g.fillStyle = lake; g.fillRect(0, 860, W, H - 860);
+  g.fillStyle = "#1b2328"; g.fillRect(1120, 860, W - 1120, 60);
+  g.fillRect(1250, 940, W - 1250, 60);
+  for (let i = 0; i < 260; i++) { g.fillStyle = rnd() < 0.5 ? "rgba(20,30,34,0.5)" : "rgba(120,180,210,0.35)"; g.fillRect(rnd() * W, 860 + rnd() * 140, 40 + rnd() * 160, 2 + rnd() * 3); }
+  // Sail and its broken reflection.
+  g.fillStyle = "#f4f6f5"; g.beginPath(); g.moveTo(1180, 470); g.lineTo(1120, 820); g.lineTo(1250, 820); g.closePath(); g.fill();
+  g.fillStyle = "#e9ecea"; g.fillRect(1100, 822, 170, 26);
+  for (let y = 860; y < 1000; y += 6) { g.fillStyle = `rgba(240,244,242,${0.9 - (y - 860) / 200})`; g.fillRect(1130 + (rnd() - 0.5) * 20, y, 100 + (rnd() - 0.5) * 40, 3); }
+  // Fine photographic noise so the posterization has texture to work with.
+  const d = g.getImageData(0, 0, W, H);
+  for (let i = 0; i < d.data.length; i += 4) { const n = (rnd() - 0.5) * 22; d.data[i] += n; d.data[i + 1] += n; d.data[i + 2] += n; }
+  g.putImageData(d, 0, 0);
+  return c.toDataURL("image/png");
+}
+
+// The demo transpiles FalseColorStipple.jsx in the browser so there is one
+// source of truth. Serve the repo over http, a file:// open will fail on fetch.
+(async () => {
+  const srcText = await (await fetch("./FalseColorStipple.jsx")).text();
+  const body = srcText.replace(/^import[\s\S]*?from "react";\n/m, "").replace("export default function", "function");
+  const code = Babel.transform(body, { presets: [["react", { runtime: "classic" }]] }).code;
+  const FalseColorStipple = new Function("React", "useEffect", "useRef", code + "; return FalseColorStipple;")(React, React.useEffect, React.useRef);
+  const h = React.createElement;
+  if (location.hash.includes("clean")) document.body.classList.add("clean");
+  const scene = sceneDataURL();
+
+  function Demo() {
+    const [src, setSrc] = React.useState(scene);
+    const [dither, setDither] = React.useState(0.12);
+    const [grain, setGrain] = React.useState(1);
+    const [hue, setHue] = React.useState(8);
+    const [fps, setFps] = React.useState(0);
+    const [seed, setSeed] = React.useState(1);
+    const slider = (label, value, set, min, max, step) => [
+      h("span", { key: label + "l" }, label + " " + value),
+      h("input", { key: label, type: "range", min, max, step, value, onChange: e => set(parseFloat(e.target.value)) }),
+    ];
+    return h(React.Fragment, null,
+      h(FalseColorStipple, { src, dither, grain, hueJitter: hue, grainFps: fps, seed, alt: "Lake valley rendered as a false-color stipple illustration" }),
+      h("div", { className: "panel" },
+        h("h1", null, "false-color-stipple-illustration"),
+        slider("dither", dither, setDither, 0, 0.3, 0.01),
+        slider("grain px", grain, setGrain, 1, 6, 1),
+        slider("hue jitter °", hue, setHue, 0, 30, 1),
+        slider("shimmer fps", fps, setFps, 0, 24, 1),
+        h("button", { onClick: () => setSeed(Math.floor(Math.random() * 997)) }, "Reroll grain"),
+        h("label", { className: "file" }, "Use your own photo…",
+          h("input", { type: "file", accept: "image/*", onChange: e => e.target.files[0] && setSrc(URL.createObjectURL(e.target.files[0])) })),
+      )
+    );
+  }
+  ReactDOM.createRoot(document.getElementById("app")).render(h(Demo));
+})();
+</script>
+</body>
+</html>
