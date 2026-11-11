@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <img alt="15 components" src="https://img.shields.io/badge/components-15-1b1b19">
+  <img alt="16 components" src="https://img.shields.io/badge/components-16-1b1b19">
   <img alt="React" src="https://img.shields.io/badge/React-18-1b1b19">
   <img alt="Three.js" src="https://img.shields.io/badge/Three.js-r169-1b1b19">
   <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-1b1b19">
@@ -58,7 +58,7 @@ Click any preview to open its live demo.
 </tr>
 <tr>
 <td width="50%" valign="top"><b><a href="components/ascii-model-hover-cards/">ascii-model-hover-cards</a></b> · <a href="https://gitcamy.github.io/design-database/components/ascii-model-hover-cards/demo.html">demo</a><br><sub>Cards with 3D objects rendered live as tinted ASCII that start turning on hover, while the bracketed CTA fills. React + Three.js.</sub></td>
-<td width="50%" valign="top"></td>
+<td width="50%" valign="top"><a href="https://gitcamy.github.io/design-database/components/sand-scatter-wordmark/demo.html"><img src="docs/previews/sand-scatter-wordmark.png" alt="sand-scatter-wordmark preview"></a><br><b><a href="components/sand-scatter-wordmark/">sand-scatter-wordmark</a></b><br><sub>Wordmark built from gold sand grains that the cursor blows into a haze and a spring pulls back, with a raked-sand intro. React + canvas.</sub></td>
 </tr>
 </table>
 
