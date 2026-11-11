@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <img alt="13 components" src="https://img.shields.io/badge/components-13-1b1b19">
+  <img alt="14 components" src="https://img.shields.io/badge/components-14-1b1b19">
   <img alt="React" src="https://img.shields.io/badge/React-18-1b1b19">
   <img alt="Three.js" src="https://img.shields.io/badge/Three.js-r169-1b1b19">
   <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-1b1b19">
@@ -54,7 +54,7 @@ Click any preview to open its live demo.
 </tr>
 <tr>
 <td width="50%" valign="top"><a href="https://gitcamy.github.io/design-database/components/depth-field-card-drift/demo.html"><img src="docs/previews/depth-field-card-drift.png" alt="depth-field-card-drift preview"></a><br><b><a href="components/depth-field-card-drift/">depth-field-card-drift</a></b><br><sub>Photo and UI cards floating in 3D depth behind a hero, receding on scroll through a shallow depth of field. React, no dependencies.</sub></td>
-<td width="50%" valign="top"></td>
+<td width="50%" valign="top"><b><a href="components/ascii-model-hover-cards/">ascii-model-hover-cards</a></b> · <a href="https://gitcamy.github.io/design-database/components/ascii-model-hover-cards/demo.html">demo</a><br><sub>Cards with 3D objects rendered live as tinted ASCII that start turning on hover, while the bracketed CTA fills. React + Three.js.</sub></td>
 </tr>
 </table>
 
