@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>sand-scatter-wordmark</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@500&display=swap" rel="stylesheet" />
+<script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.26.4/babel.min.js"></script>
+<style>
+  html, body { margin: 0; background: #FDFDFD; }
+  main { min-height: 100vh; display: grid; place-items: center; }
+  .stage { width: 100%; }
+  .tagline { margin: -2.5vw 0 0; text-align: center; color: #1b1b19;
+             font: 500 clamp(20px, 3.2vw, 44px)/1.15 Inter, system-ui, sans-serif; letter-spacing: -0.01em; }
+</style>
+</head>
+<body>
+<main><div class="stage" id="root"></div></main>
+<script>
+// Transpiles the component in the browser so there is one source of truth.
+// Serve this folder over http; a file:// open will fail on fetch.
+(async () => {
+  const src = await (await fetch("./SandScatterWordmark.jsx?v=" + Date.now())).text();
+  const body = src
+    .replace(/^import[\s\S]*?from "react";\n/m, "")
+    .replace("export default function", "function");
+  const code = Babel.transform(body, { presets: [["react", { runtime: "classic" }]] }).code;
+  const prelude = "const { useEffect, useRef } = React;\n";
+  const Wordmark = new Function("React", prelude + code + "; return SandScatterWordmark;")(React);
+  const h = React.createElement;
+  // ?intro=0 skips the load animation.
+  const intro = new URLSearchParams(location.search).get("intro") !== "0";
+  ReactDOM.createRoot(document.getElementById("root")).render(
+    h(Wordmark, { intro },
+      h("p", { className: "tagline" }, "Built for the next", h("br"), "generation of tools"))
+  );
+})();
+</script>
+</body>
+</html>

@@ -943,6 +943,69 @@
         "bracket CTA built from pseudo-elements that fade as the accent fill appears"
       ],
       "notes": "Derived from a screen recording via the visual-to-prompt skill. Source brand, question copy and 3D models were not carried over. Needs Archivo (wdth axis) and JetBrains Mono, or pass font stacks."
+    },
+    {
+      "name": "sand-scatter-wordmark",
+      "path": "components/sand-scatter-wordmark",
+      "aliases": [
+        "sand logo hover",
+        "particle wordmark",
+        "logo that scatters on hover",
+        "dust logo",
+        "grain wordmark",
+        "sand text",
+        "logo dissolves under cursor"
+      ],
+      "summary": "A wordmark drawn from tens of thousands of gold sand grains on one canvas. The cursor pushes the grains inside a soft radius outward into a pale haze, opening a dusty hole in the letters; a damped spring pulls each grain home when the cursor moves on. On load the grains start as wavy concentric rings, like raked sand, and settle into the letters.",
+      "tags": [
+        "logo",
+        "wordmark",
+        "hero",
+        "cursor",
+        "hover",
+        "particles",
+        "canvas",
+        "sand",
+        "spring",
+        "intro",
+        "no-build"
+      ],
+      "stack": [
+        "react"
+      ],
+      "language": "jsx",
+      "dependencies": [],
+      "setup": [],
+      "files": [
+        {
+          "path": "SandScatterWordmark.jsx",
+          "role": "component",
+          "dest": "components/SandScatterWordmark.jsx"
+        },
+        {
+          "path": "demo.html",
+          "role": "demo"
+        },
+        {
+          "path": "README.md",
+          "role": "docs"
+        }
+      ],
+      "demo": {
+        "file": "demo.html",
+        "serve": "python3 -m http.server 8792",
+        "build_required": false
+      },
+      "ports": [],
+      "techniques": [
+        "grain home positions sampled from an offscreen fillText mask, weighted toward top edges",
+        "every grain composited by hand into one ImageData buffer per frame (about 2.5ms for 40k grains at 2x)",
+        "cursor sets a per-grain target pushed out past the rim instead of applying a force, so the hole clears without grains flying off",
+        "per-grain reach multiplier squared for a soft hole edge and a pale outer haze; opacity falls with displacement",
+        "damped spring home, stepped at a fixed 60Hz, and the loop sleeps once every grain has settled",
+        "intro lerps each grain from a wavy concentric-ring ellipse to its home with easeOutCubic and a random delay"
+      ],
+      "notes": "Derived from a screen recording via the visual-to-prompt skill. Source brand, tagline copy and the tagline's colour sweep were not carried over."
     }
   ]
 }
