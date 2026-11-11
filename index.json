@@ -878,6 +878,71 @@
         "noise cells stretched horizontally over water for ripple streaks"
       ],
       "notes": "Derived from a screenshot via the visual-to-prompt skill. The treatment and palette came from the reference; its photograph, brand and page were not carried over. Images need CORS for WebGL. README holds the reusable image-model prompt."
+    },
+    {
+      "name": "ascii-model-hover-cards",
+      "path": "components/ascii-model-hover-cards",
+      "aliases": [
+        "ascii 3d cards",
+        "ascii object cards",
+        "hover cards with 3d objects",
+        "reactive objects on hover",
+        "prediction cards",
+        "ascii model cards"
+      ],
+      "summary": "Row of square cards, each with a 3D object rendered live as monospace ASCII in one flat tint behind the text. Hover lightens the card, starts the object turning, and turns a bracketed CTA into a solid accent button; on leave the object eases back to rest and the loop stops. Models are presets or any three.js Object3D.",
+      "tags": [
+        "cards",
+        "hover",
+        "ascii",
+        "3d",
+        "three.js",
+        "webgl",
+        "canvas",
+        "typography",
+        "cta",
+        "dark"
+      ],
+      "stack": [
+        "react",
+        "three.js",
+        "canvas"
+      ],
+      "language": "jsx",
+      "dependencies": [
+        "three@>=0.163"
+      ],
+      "setup": [],
+      "files": [
+        {
+          "path": "AsciiModelHoverCards.jsx",
+          "role": "component",
+          "dest": "components/AsciiModelHoverCards.jsx"
+        },
+        {
+          "path": "demo.html",
+          "role": "demo"
+        },
+        {
+          "path": "README.md",
+          "role": "docs"
+        }
+      ],
+      "demo": {
+        "file": "demo.html",
+        "serve": "python3 -m http.server 8783",
+        "build_required": false
+      },
+      "ports": [],
+      "techniques": [
+        "one shared WebGLRenderer rendering each card's scene into a render target sized to its glyph grid (one pixel per cell)",
+        "readRenderTargetPixels luminance mapped through a character ramp and drawn with fillText in a single tint",
+        "camera aspect set to the grid's pixel aspect so tall glyph cells do not stretch the model",
+        "eased hover scalar drives spin, tilt and bob; on leave rotation lerps back along the shortest angle",
+        "per-card rAF that stops once settled, so resting cards cost nothing",
+        "bracket CTA built from pseudo-elements that fade as the accent fill appears"
+      ],
+      "notes": "Derived from a screen recording via the visual-to-prompt skill. Source brand, question copy and 3D models were not carried over. Needs Archivo (wdth axis) and JetBrains Mono, or pass font stacks."
     }
   ]
 }
