@@ -90,7 +90,8 @@ components without walking the folders.
   dependencies, file destinations, and the techniques worth reusing. Tools
   read it instead of walking the folders, so a component missing from it is
   effectively invisible.
-- Add a 1280×800 preview to `docs/previews/<name>.png`.
+- Previews (`docs/previews/<name>.png`, 1280×800) are captured from each demo by the
+  Previews workflow when a component lands on `main`. To make one locally: `npm i && npm run previews`.
 
 ## Credits
 
