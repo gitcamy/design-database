@@ -1,0 +1,11 @@
+{
+  "name": "design-database",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "previews": "node scripts/capture-previews.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.48.2"
+  }
+}

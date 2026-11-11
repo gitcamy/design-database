@@ -1,0 +1,48 @@
+name: Previews
+
+# Captures docs/previews/<name>.png for any component in index.json that has a demo but no preview,
+# then commits it so the gallery (index.html) and README pick it up on the next Pages build.
+on:
+  push:
+    branches: [main]
+    paths: ["index.json", "components/**"]
+  workflow_dispatch:
+    inputs:
+      components:
+        description: "Space-separated component names to re-capture (blank = only missing ones, --all = every one)"
+        required: false
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: previews
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: node scripts/capture-previews.mjs $COMPONENTS
+        env:
+          COMPONENTS: ${{ github.event.inputs.components }}
+      - name: Commit new previews
+        run: |
+          git add docs/previews
+          if git diff --cached --quiet; then echo "No preview changes."; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Update component previews"
+          git push
+          # Pushes made with GITHUB_TOKEN don't trigger a Pages build on their own.
+          gh api -X POST "repos/${{ github.repository }}/pages/builds" || true
+        env:
+          GH_TOKEN: ${{ github.token }}
