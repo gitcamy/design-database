@@ -815,6 +815,69 @@
         "scroll progress exposed as a CSS variable for overlay choreography"
       ],
       "notes": "Derived from a screen recording via the visual-to-prompt skill. Source brand, copy, photography and UI card content were not carried over."
+    },
+    {
+      "name": "false-color-stipple-illustration",
+      "path": "components/false-color-stipple-illustration",
+      "aliases": [
+        "false color illustration",
+        "neon stipple",
+        "stippled landscape",
+        "thermal photo style",
+        "risograph photo effect",
+        "neon green grain illustration",
+        "posterized grain photo"
+      ],
+      "summary": "Illustration treatment that cuts any photo into five flat false-color tones (near-black shadow, two neon greens, cyan water, ochre accent, warm paper) shaded only by single-pixel colored grain. Edges fray into 20 to 40px bands of mixed specks rather than blending. WebGL React component plus an image-model prompt template.",
+      "tags": [
+        "illustration",
+        "image",
+        "filter",
+        "webgl",
+        "shader",
+        "grain",
+        "dither",
+        "posterize",
+        "false-color",
+        "hero",
+        "no-build"
+      ],
+      "stack": [
+        "react",
+        "webgl"
+      ],
+      "language": "jsx",
+      "dependencies": [],
+      "setup": [],
+      "files": [
+        {
+          "path": "FalseColorStipple.jsx",
+          "role": "component",
+          "dest": "components/FalseColorStipple.jsx"
+        },
+        {
+          "path": "demo.html",
+          "role": "demo"
+        },
+        {
+          "path": "README.md",
+          "role": "docs"
+        }
+      ],
+      "demo": {
+        "file": "demo.html",
+        "serve": "python3 -m http.server 8782",
+        "build_required": false
+      },
+      "ports": [],
+      "techniques": [
+        "jittered neighbour sampling within a feather radius, so edges become mixed specks of the two real tones with no in-between halo",
+        "triangular noise added to luminance before a hard cut into flat bands",
+        "blue and warm masks route midtones to water and accent colors",
+        "per-speck hue rotation about the grey axis plus brightness jitter",
+        "noise cells stretched horizontally over water for ripple streaks"
+      ],
+      "notes": "Derived from a screenshot via the visual-to-prompt skill. The treatment and palette came from the reference; its photograph, brand and page were not carried over. Images need CORS for WebGL. README holds the reusable image-model prompt."
     }
   ]
 }

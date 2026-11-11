@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <img alt="13 components" src="https://img.shields.io/badge/components-13-1b1b19">
+  <img alt="14 components" src="https://img.shields.io/badge/components-14-1b1b19">
   <img alt="React" src="https://img.shields.io/badge/React-18-1b1b19">
   <img alt="Three.js" src="https://img.shields.io/badge/Three.js-r169-1b1b19">
   <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-1b1b19">
@@ -54,7 +54,7 @@ Click any preview to open its live demo.
 </tr>
 <tr>
 <td width="50%" valign="top"><a href="https://gitcamy.github.io/design-database/components/depth-field-card-drift/demo.html"><img src="docs/previews/depth-field-card-drift.png" alt="depth-field-card-drift preview"></a><br><b><a href="components/depth-field-card-drift/">depth-field-card-drift</a></b><br><sub>Photo and UI cards floating in 3D depth behind a hero, receding on scroll through a shallow depth of field. React, no dependencies.</sub></td>
-<td width="50%" valign="top"></td>
+<td width="50%" valign="top"><a href="https://gitcamy.github.io/design-database/components/false-color-stipple-illustration/demo.html"><img src="docs/previews/false-color-stipple-illustration.png" alt="false-color-stipple-illustration preview"></a><br><b><a href="components/false-color-stipple-illustration/">false-color-stipple-illustration</a></b><br><sub>Illustration treatment that turns any photo into flat neon false-color tones shaded by single-pixel grain, with frayed edges. React + WebGL, plus an image-model prompt.</sub></td>
 </tr>
 </table>
 
