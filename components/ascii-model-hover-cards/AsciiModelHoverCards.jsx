@@ -3,14 +3,15 @@ import * as THREE from "three";
 
 // A row of square cards. Behind each card's text sits a 3D object rendered
 // live as monospace ASCII in one flat tint. Hovering a card lightens its
-// surface, starts the object turning and swaps the bracketed CTA for a filled
-// button. Text, card size and glyph tint never change.
+// surface and swaps the bracketed CTA for a filled button, while the object
+// is pushed away from the cursor like a magnet meeting a matching pole. Text, card size and glyph tint never change.
 
 const DEFAULT_RAMP = " .,:;-_+*=!|0123456789$#@";
 
 // ---------------------------------------------------------------------------
 // Built-in models. Each returns a THREE.Object3D centred on the origin and
-// roughly 2 units tall. Pass your own `model` function to use anything else.
+// roughly 2 units tall. Set userData.repelParts on the returned object to make
+// each direct child repel the cursor independently. Pass your own `model` function to use anything else.
 // ---------------------------------------------------------------------------
 const PRESETS = {
   trophy(T) {
@@ -47,6 +48,7 @@ const PRESETS = {
       coin.rotation.set(rx, 0, rz);
       g.add(coin);
     }
+    g.userData.repelParts = true; // each coin flees the cursor on its own
     return g;
   },
   knot(T) {
@@ -70,17 +72,12 @@ function getRenderer() {
   return renderer;
 }
 
-const lerpAngle = (a, b, t) => {
-  let d = ((b - a + Math.PI) % (Math.PI * 2)) - Math.PI;
-  if (d < -Math.PI) d += Math.PI * 2;
-  return a + d * t;
-};
-
-function AsciiCard({ card, ramp, cellSize, bg, hoverBg, border, accent, spin, displayFont, monoFont, reducedMotion }) {
+function AsciiCard({ card, ramp, cellSize, bg, hoverBg, border, accent, strength, radius, displayFont, monoFont, reducedMotion }) {
   const wrap = useRef(null);
   const canvas = useRef(null);
   const [hot, setHot] = useState(false);
   const hotRef = useRef(false);
+  const pointerRef = useRef(null);
   hotRef.current = hot;
 
   useEffect(() => {
@@ -108,9 +105,19 @@ function AsciiCard({ card, ramp, cellSize, bg, hoverBg, border, accent, spin, di
     scene.add(pivot);
 
     const build = typeof card.model === "function" ? card.model : PRESETS[card.model] || PRESETS.knot;
+    // Bodies are what the cursor pushes. A model can opt into per-part
+    // repulsion (each direct child flees on its own) with userData.repelParts.
+    const bodies = [];
+    const addBody = (o) => bodies.push({
+      o, p0: o.position.clone(), r0: o.rotation.clone(),
+      off: new THREE.Vector2(), vel: new THREE.Vector2(),
+      rot: new THREE.Vector2(), rotVel: new THREE.Vector2(),
+    });
     Promise.resolve(build(THREE)).then((obj) => {
       if (disposed || !obj) return;
       pivot.add(obj);
+      if (obj.userData.repelParts) obj.children.forEach(addBody);
+      else addBody(pivot);
       kick();
     });
 
@@ -163,31 +170,72 @@ function AsciiCard({ card, ramp, cellSize, bg, hoverBg, border, accent, spin, di
       }
     }
 
-    // Animation state. h eases toward 1 while hovered; the object spins at
-    // spin * h and, once released, eases back to its rest pose.
+    // Magnetic repulsion. The cursor is projected onto the z = 0 plane; every
+    // body is pushed directly away from it with a Gaussian falloff, and turns
+    // its face away. Each body hangs on an underdamped spring, so it lunges
+    // away, overshoots slightly, and springs home when the cursor leaves.
+    const K = 60, C = 7, TURN = 0.75;
+    const viewH = 2 * camera.position.z * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+    const ray = new THREE.Raycaster();
+    const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+    const ndc = new THREE.Vector2();
+    const hit = new THREE.Vector3();
+    const local = new THREE.Vector3();
+    const ws = new THREE.Vector3();
     let h = 0, t = 0, last = 0, running = false;
     function frame(now) {
-      const dt = last ? Math.min(0.05, (now - last) / 1000) : 0.016;
+      const dt = last ? Math.min(0.033, (now - last) / 1000) : 0.016;
       last = now;
       const want = hotRef.current && !reducedMotion ? 1 : 0;
-      h += (want - h) * (1 - Math.exp(-dt * 6));
+      h += (want - h) * (1 - Math.exp(-dt * 8));
       t += dt;
-      if (want) {
-        pivot.rotation.y += spin * h * dt;
-        pivot.rotation.x = restX + Math.sin(t * 1.7) * 0.18 * h;
-        pivot.position.y = (card.offset?.[1] || 0) + Math.sin(t * 2.3) * 0.08 * h;
-      } else {
-        const k = 1 - Math.exp(-dt * 3.2);
-        pivot.rotation.y = lerpAngle(pivot.rotation.y, restY, k);
-        pivot.rotation.x += (restX - pivot.rotation.x) * k;
-        pivot.position.y += ((card.offset?.[1] || 0) - pivot.position.y) * k;
+
+      const ptr = pointerRef.current;
+      let has = false;
+      if (ptr && h > 0.001) {
+        const ox = (cw - cols * cellW) / 2, oy = (ch - rows * cellH) / 2;
+        ndc.set(((ptr.x - ox) / (cols * cellW)) * 2 - 1, -(((ptr.y - oy) / (rows * cellH)) * 2 - 1));
+        ray.setFromCamera(ndc, camera);
+        has = !!ray.ray.intersectPlane(plane, hit);
+      }
+
+      let moving = false;
+      for (const b of bodies) {
+        let tx = 0, ty = 0, f = 0;
+        const parent = b.o.parent;
+        const sc = parent.getWorldScale(ws).x;
+        const R = (radius * viewH) / sc;
+        const S = (strength * viewH) / sc;
+        if (has) {
+          local.copy(hit);
+          parent.worldToLocal(local);
+          const dx = b.p0.x + b.off.x - local.x;
+          const dy = b.p0.y + b.off.y - local.y;
+          const d = Math.hypot(dx, dy) || 1e-4;
+          f = Math.exp(-(d * d) / (R * R)) * h;
+          tx = (dx / d) * f * S;
+          ty = (dy / d) * f * S;
+        }
+        // Spring the offset toward the push target, and the turn toward
+        // facing away from the cursor.
+        b.vel.x += (K * (tx - b.off.x) - C * b.vel.x) * dt;
+        b.vel.y += (K * (ty - b.off.y) - C * b.vel.y) * dt;
+        b.off.x += b.vel.x * dt;
+        b.off.y += b.vel.y * dt;
+        const rxT = -(ty / S) * TURN, ryT = (tx / S) * TURN;
+        b.rotVel.x += (K * (rxT - b.rot.x) - C * b.rotVel.x) * dt;
+        b.rotVel.y += (K * (ryT - b.rot.y) - C * b.rotVel.y) * dt;
+        b.rot.x += b.rotVel.x * dt;
+        b.rot.y += b.rotVel.y * dt;
+
+        b.o.position.set(b.p0.x + b.off.x, b.p0.y + b.off.y, b.p0.z);
+        b.o.rotation.set(b.r0.x + b.rot.x, b.r0.y + b.rot.y, b.r0.z);
+        if (Math.abs(b.off.x) + Math.abs(b.off.y) + Math.abs(b.vel.x) + Math.abs(b.vel.y) +
+            Math.abs(b.rot.x) + Math.abs(b.rot.y) + Math.abs(b.rotVel.x) + Math.abs(b.rotVel.y) > 1e-3) moving = true;
       }
       if (card.animate) card.animate(pivot, t, h);
       draw();
-      const settled = !want && h < 0.002 &&
-        Math.abs(lerpAngle(pivot.rotation.y, restY, 1) - pivot.rotation.y) < 0.002 &&
-        Math.abs(pivot.rotation.x - restX) < 0.002;
-      if (settled) { running = false; last = 0; return; }
+      if (!want && h < 0.002 && !moving) { running = false; last = 0; return; }
       raf = requestAnimationFrame(frame);
     }
     function kick() {
@@ -209,12 +257,17 @@ function AsciiCard({ card, ramp, cellSize, bg, hoverBg, border, accent, spin, di
       target?.dispose();
       scene.traverse((o) => { o.geometry?.dispose(); o.material?.dispose?.(); });
     };
-  }, [card, ramp, cellSize, spin, monoFont, reducedMotion]);
+  }, [card, ramp, cellSize, strength, radius, monoFont, reducedMotion]);
 
   useEffect(() => { wrap.current?.__kick?.(); }, [hot]);
 
-  const on = () => setHot(true);
-  const off = () => setHot(false);
+  const track = (e) => {
+    const r = wrap.current.getBoundingClientRect();
+    pointerRef.current = { x: e.clientX - r.left, y: e.clientY - r.top };
+    wrap.current.__kick?.();
+  };
+  const on = (e) => { if (e && e.clientX !== undefined) track(e); setHot(true); };
+  const off = () => { pointerRef.current = null; setHot(false); };
   const Tag = card.href ? "a" : "div";
 
   return (
@@ -224,6 +277,7 @@ function AsciiCard({ card, ramp, cellSize, bg, hoverBg, border, accent, spin, di
       className={"amhc-card" + (hot ? " is-hot" : "")}
       onPointerEnter={on}
       onPointerLeave={off}
+      onPointerMove={track}
       onFocus={on}
       onBlur={off}
       tabIndex={card.href ? undefined : 0}
@@ -282,7 +336,8 @@ export default function AsciiModelHoverCards({
   gap = 14,
   cellSize = 6,
   ramp = DEFAULT_RAMP,
-  spin = 1.6,
+  strength = 0.14,
+  radius = 0.32,
   bg = "#0B0B0B",
   hoverBg = "#252029",
   border = "#2A2A2A",
@@ -316,7 +371,8 @@ export default function AsciiModelHoverCards({
             hoverBg={hoverBg}
             border={border}
             accent={accent}
-            spin={spin}
+            strength={strength}
+            radius={radius}
             displayFont={displayFont}
             monoFont={monoFont}
             reducedMotion={reducedMotion}

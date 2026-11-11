@@ -57,7 +57,7 @@ Click any preview to open its live demo.
 <td width="50%" valign="top"><a href="https://gitcamy.github.io/design-database/components/false-color-stipple-illustration/demo.html"><img src="docs/previews/false-color-stipple-illustration.png" alt="false-color-stipple-illustration preview"></a><br><b><a href="components/false-color-stipple-illustration/">false-color-stipple-illustration</a></b><br><sub>Illustration treatment that turns any photo into flat neon false-color tones shaded by single-pixel grain, with frayed edges. React + WebGL, plus an image-model prompt.</sub></td>
 </tr>
 <tr>
-<td width="50%" valign="top"><b><a href="components/ascii-model-hover-cards/">ascii-model-hover-cards</a></b> · <a href="https://gitcamy.github.io/design-database/components/ascii-model-hover-cards/demo.html">demo</a><br><sub>Cards with 3D objects rendered live as tinted ASCII that start turning on hover, while the bracketed CTA fills. React + Three.js.</sub></td>
+<td width="50%" valign="top"><b><a href="components/ascii-model-hover-cards/">ascii-model-hover-cards</a></b> · <a href="https://gitcamy.github.io/design-database/components/ascii-model-hover-cards/demo.html">demo</a><br><sub>Cards with 3D objects rendered live as tinted ASCII that are repelled by the cursor like matching magnets, while the bracketed CTA fills. React + Three.js.</sub></td>
 <td width="50%" valign="top"></td>
 </tr>
 </table>

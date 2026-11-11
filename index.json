@@ -888,9 +888,11 @@
         "hover cards with 3d objects",
         "reactive objects on hover",
         "prediction cards",
-        "ascii model cards"
+        "ascii model cards",
+        "magnetic repel objects",
+        "objects push away from cursor"
       ],
-      "summary": "Row of square cards, each with a 3D object rendered live as monospace ASCII in one flat tint behind the text. Hover lightens the card, starts the object turning, and turns a bracketed CTA into a solid accent button; on leave the object eases back to rest and the loop stops. Models are presets or any three.js Object3D.",
+      "summary": "Row of square cards, each with a 3D object rendered live as monospace ASCII in one flat tint behind the text. On hover the card lightens, a bracketed CTA becomes a solid accent button, and the object is repelled by the cursor like a matching magnet pole: pushed away and turned away on an underdamped spring, piece by piece for multi-part models. Models are presets or any three.js Object3D.",
       "tags": [
         "cards",
         "hover",
@@ -901,7 +903,10 @@
         "canvas",
         "typography",
         "cta",
-        "dark"
+        "dark",
+        "cursor-reactive",
+        "magnetic",
+        "spring"
       ],
       "stack": [
         "react",
@@ -938,7 +943,8 @@
         "one shared WebGLRenderer rendering each card's scene into a render target sized to its glyph grid (one pixel per cell)",
         "readRenderTargetPixels luminance mapped through a character ramp and drawn with fillText in a single tint",
         "camera aspect set to the grid's pixel aspect so tall glyph cells do not stretch the model",
-        "eased hover scalar drives spin, tilt and bob; on leave rotation lerps back along the shortest angle",
+        "pointer raycast onto z=0; each body gets a Gaussian-falloff push target directly away from it and turns away, computed in the body's parent space",
+        "semi-implicit underdamped springs (k 60, c 7) on offset and turn, so bodies lunge, overshoot and spring home; opt-in per-child repulsion via userData.repelParts",
         "per-card rAF that stops once settled, so resting cards cost nothing",
         "bracket CTA built from pseudo-elements that fade as the accent fill appears"
       ],

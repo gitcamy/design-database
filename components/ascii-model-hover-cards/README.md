@@ -2,10 +2,12 @@
 
 A row of square cards on a near-black page. Behind each card's text, a 3D
 object is rendered live as monospace ASCII in one flat tint, oversized and
-cropped by the card edges. Hovering a card lightens its surface, starts the
-object turning (with a slow bob and tilt), and turns the bracketed CTA into a
-solid accent button. On leave, the object eases back to its rest pose and the
-render loop stops. The text, card size and glyph tint never change.
+cropped by the card edges. Hovering a card lightens its surface and turns the
+bracketed CTA into a solid accent button, and the object reacts to the cursor
+like a magnet meeting a matching pole: it is pushed directly away and turns
+its face away, on an underdamped spring that overshoots slightly. Multi-part
+models such as the coins scatter piece by piece. On leave, everything springs
+home and the render loop stops. The text, card size and glyph tint never change.
 
 React + three.js. Derived from a screen recording via the `visual-to-prompt`
 skill. Only the ASCII rendering and hover mechanic come from the reference.
@@ -55,7 +57,8 @@ Open `http://localhost:8783/components/ascii-model-hover-cards/demo.html`.
 | `gap` | number | `14` | px between cards |
 | `cellSize` | number | `6` | Glyph cell width in px; height is 1.65× this. Smaller is finer and more expensive |
 | `ramp` | string | `" .,:;-_+*=!\|0123456789$#@"` | Dark to bright. First character is the empty cell |
-| `spin` | number | `1.6` | Hover rotation speed, radians per second |
+| `strength` | number | `0.14` | Maximum push, as a fraction of the card height, when the cursor is right on a body |
+| `radius` | number | `0.32` | Repulsion falloff radius, as a fraction of the card height (Gaussian) |
 | `bg` | color | `#0B0B0B` | Resting card surface |
 | `hoverBg` | color | `#252029` | Hovered card surface |
 | `border` | color | `#2A2A2A` | 1px card border |
@@ -75,7 +78,7 @@ Open `http://localhost:8783/components/ascii-model-hover-cards/demo.html`.
 | `cta` | string | Bracketed at rest, filled on hover |
 | `href` | string | Makes the card an `<a>`. Without it the card is a focusable `<div>` |
 | `tint` | color | Glyph color for this card's object. **Required** |
-| `model` | `"trophy" \| "coins" \| "knot" \| (THREE) => Object3D \| Promise<Object3D>` | Built-in preset or your own builder. Defaults to `knot` |
+| `model` | `"trophy" \| "coins" \| "knot" \| (THREE) => Object3D \| Promise<Object3D>` | Built-in preset or your own builder. Defaults to `knot`. Set `userData.repelParts = true` on the returned object to make each direct child repel independently (the coins preset does) |
 | `scale` | number | Model scale. Default `1.25`. Oversize it so it crops at the edges |
 | `offset` | `[x, y]` | Model offset in scene units |
 | `restRotation` | number | Y rotation at rest, radians. Default `-0.5` |
@@ -106,23 +109,29 @@ Normalize the model to about 2 units tall and centred on the origin, or tune
   only of characters.
 - **The camera aspect matches the grid's pixel aspect** (`cols·cellW / rows·cellH`),
   so tall cells do not stretch the object.
-- **Hover is an eased scalar `h`** (time constant ~170ms). While hovered, Y rotation
-  advances at `spin · h` and X tilt and Y bob oscillate with amplitude scaled by `h`.
-  On leave, rotation eases back along the shortest angle to `restRotation`.
+- **Magnetic repulsion.** The pointer is raycast onto the z = 0 plane. Each
+  body (the whole model, or each child when `repelParts` is set) is given a push
+  target directly away from that point, of size `strength · e^(-(d/radius)²) · h`,
+  where `h` is the eased hover amount. Each body also turns away, by up to 0.75 rad
+  about the matching axis. The math runs in the body's parent space, so it
+  stays correct under the pivot's scale and rest rotation.
+- **Spring, not tween.** Offset and turn each follow a semi-implicit spring
+  (k = 60, c = 7, damping ratio about 0.45). Bodies lunge away, overshoot a little,
+  and spring home when the cursor leaves and `h` falls to 0.
 - **Render on demand.** Each card runs its own rAF only while animating, and
   stops once it is settled at rest. Resting cards cost nothing.
 - **The surface and CTA are CSS**: a 250ms `background-color` transition, plus
   bracket pseudo-elements that fade as the accent fill appears. The hand
   glyph swaps from ☞ to ☝.
-- **Focus counts as hover**, so keyboard and touch users get the same state.
-  With `prefers-reduced-motion`, the object stays still while the surface and CTA still change.
+- **Focus counts as hover** for the surface and CTA. Keyboard focus has no pointer,
+  so nothing is repelled. With `prefers-reduced-motion`, objects stay still.
 
 ## Caveats
 
 - A WebGL context is required. Without one, the cards render text only.
-- The reference may have turned the object toward the cursor rather than
-  playing a fixed motion; that could not be told from the frames. This build
-  plays a fixed motion. Add cursor tracking via `animate` if you want it.
+- Push strength and the turn amount are tuned by eye, not measured from the
+  reference. Raise `strength` for a more violent scatter, or lower `radius` so
+  only the part under the cursor moves.
 - Cost scales with `cols × rows × cards` per animating frame. At the default
   cell size, three 400px cards are about 8k `fillText` calls per frame at most,
-  and only the hovered card animates.
+  and only the hovered card animates (until it settles).
